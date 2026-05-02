@@ -1,0 +1,14 @@
+[
+  { "mes": "Enero",      "monto": 12500.00, "region": "Norte" },
+  { "mes": "Febrero",    "monto": 14800.50, "region": "Norte" },
+  { "mes": "Marzo",      "monto": 9300.75,  "region": "Sur"   },
+  { "mes": "Abril",      "monto": 16200.00, "region": "Sur"   },
+  { "mes": "Mayo",       "monto": 18750.25, "region": "Norte" },
+  { "mes": "Junio",      "monto": 21000.00, "region": "Centro"},
+  { "mes": "Julio",      "monto": 19500.00, "region": "Centro"},
+  { "mes": "Agosto",     "monto": 22300.80, "region": "Sur"   },
+  { "mes": "Septiembre", "monto": 24100.00, "region": "Norte" },
+  { "mes": "Octubre",    "monto": 20800.60, "region": "Centro"},
+  { "mes": "Noviembre",  "monto": 27500.00, "region": "Norte" },
+  { "mes": "Diciembre",  "monto": 31200.00, "region": "Sur"   }
+]
