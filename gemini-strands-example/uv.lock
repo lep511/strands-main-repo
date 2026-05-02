@@ -460,7 +460,7 @@ wheels = [
 ]
 
 [[package]]
-name = "gemini-strands"
+name = "gemini-strands-example"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

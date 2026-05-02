@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Weather Agent Lambda with Strands Agents
+
+Parameters:
+  GeminiApiKey:
+    Type: String
+    NoEcho: true
+    Description: Gemini API Key
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures:
+      - x86_64
+    Timeout: 60
+    MemorySize: 512
+
+Resources:
+  WeatherAgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: weather-agent
+      Handler: lambda_agent.handler
+      CodeUri: src/
+      Description: Weather agent powered by Strands and Gemini
+      Environment:
+        Variables:
+          GEMINI_API_KEY: !Ref GeminiApiKey
+      Policies:
+        - AWSLambdaBasicExecutionRole
+    Metadata:
+      BuildMethod: makefile
+
+Outputs:
+  WeatherAgentFunctionArn:
+    Description: ARN de la función Lambda
+    Value: !GetAtt WeatherAgentFunction.Arn
