@@ -11,6 +11,10 @@ import os
 
 load_dotenv()
 
+# ── Constante global ───────────────────────────────────────────────────────────
+USER_ID = "mem0_user"
+MEMO_API_KEY = os.getenv("MEM0_API_KEY")
+
 # ── Logger ─────────────────────────────────────────────────────────────────────
 def setup_logger(name: str = __name__) -> logging.Logger:
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -46,10 +50,6 @@ model = GeminiModel(
         "temperature": 1
     }
 )
-
-# ── Constante global ───────────────────────────────────────────────────────────
-USER_ID = "mem0_user"
-MEMO_API_KEY = os.getenv("MEM0_API_KEY")
 
 # ── Prompts ────────────────────────────────────────────────────────────────────
 MEMORY_SYSTEM_PROMPT = f"""You are a personal assistant that maintains context by remembering user details.
@@ -181,31 +181,9 @@ if __name__ == "__main__":
     assistant = MemoryAssistant()
 
     print("\n🧠 Memory Agent 🧠\n")
-    print("Commands:")
-    print("  'demo'  — Load demo memories")
-    print("  'exit'  — Quit\n")
-    print("Try:")
-    print("  Remember that I prefer window seats on flights")
-    print("  What are my travel preferences?")
-    print("  Show me all my memories\n")
+    assistant.initialize_demo_memories()
+    print("Demo memories initialized!\n")
 
-    while True:
-            try:
-                user_input = input("> ").strip()
-                if not user_input:
-                    continue
-                if user_input.lower() == "exit":
-                    print("\nGoodbye! 👋")
-                    break
-                if user_input.lower() == "demo":
-                    assistant.initialize_demo_memories()
-                    print("Demo memories initialized!\n")
-                    continue
-                result = assistant.process_input(user_input)
-                # print(f"\n{result}\n")
-            except KeyboardInterrupt:
-                print("\n\nExiting...")
-                break
-            except Exception as e:
-                logger.error("Error: %s", e)
-                print(f"Error: {e}")
+    user_input = "What are my travel preferences?"
+    result = assistant.process_input(user_input)
+    print(f"\n{result}\n")
