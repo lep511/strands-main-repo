@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  Banking Scheduled Payments - DynamoDB Design Challenge
+  PK=a#{AccountID}, SK=p#{Status}#{ScheduledTime} with a GSI on Status+ScheduledTime.
+
+Globals:
+  Function:
+    Runtime: python3.9
+    Architectures:
+      - arm64
+    Timeout: 60
+    MemorySize: 256
+
+Resources:
+
+  PaymentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-payments"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+        - AttributeName: Status
+          AttributeType: S
+        - AttributeName: ScheduledTime
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: StatusIndex
+          KeySchema:
+            - AttributeName: Status
+              KeyType: HASH
+            - AttributeName: ScheduledTime
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  SeedDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-seed-data"
+      Handler: seed_data.handler
+      CodeUri: src/
+      Description: Inserts sample payment data into the DynamoDB table
+      Timeout: 120
+      Environment:
+        Variables:
+          PAYMENTS_TABLE: !Ref PaymentsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PaymentsTable
+
+Outputs:
+  PaymentsTableName:
+    Description: DynamoDB table name for payments
+    Value: !Ref PaymentsTable
+
+  SeedDataFunctionArn:
+    Description: Lambda function ARN to seed sample data
+    Value: !GetAtt SeedDataFunction.Arn
