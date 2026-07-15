@@ -1,0 +1,28 @@
+{
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "harness_kpmqaAgent": {
+            "runtimeId": "testHarness_harness_kpmqaAgent-aKkpV4E1Xi",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-east-1:678717774493:runtime/testHarness_harness_kpmqaAgent-aKkpV4E1Xi",
+            "roleArn": "arn:aws:iam::678717774493:role/AgentCore-testHarness-def-ApplicationAgentHarnessKp-h8x3AknzsgWA"
+          }
+        },
+        "harnesses": {
+          "MyHarness": {
+            "harnessId": "testHarness_MyHarness-DnWYs9UGeb",
+            "harnessArn": "arn:aws:bedrock-agentcore:us-east-1:678717774493:harness/testHarness_MyHarness-DnWYs9UGeb",
+            "roleArn": "arn:aws:iam::678717774493:role/testHarness_MyHarness",
+            "status": "READY",
+            "harnessVersion": 1,
+            "agentRuntimeArn": "arn:aws:bedrock-agentcore:us-east-1:678717774493:runtime/harness_testHarness_MyHarness-7DhRUV84ad",
+            "provisioner": "cloudformation"
+          }
+        },
+        "stackName": "AgentCore-testHarness-default",
+        "deployHash": "c44f7e76d2c76b57"
+      }
+    }
+  }
+}

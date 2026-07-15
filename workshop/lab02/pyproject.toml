@@ -1,0 +1,9 @@
+[project]
+name = "lab02"
+version = "0.1.0"
+description = "Bedrock Guardrails with Cedar and AgentCore"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "boto3>=1.42.97",
+]
