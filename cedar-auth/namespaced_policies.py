@@ -12,6 +12,9 @@ from datetime import timezone
 from typing import Any
 
 import cedarpy
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
 
 from strands import Agent, tool
 from strands.hooks.events import BeforeToolCallEvent
@@ -29,6 +32,8 @@ PrincipalResolver = Callable[[dict[str, Any]], TypeAndId | None]
 ContextEnricher = Callable[[dict[str, Any]], dict[str, Any]]
 
 _STATE_KEY = "cedar-authorization"
+
+console = Console()
 
 
 def _generate_namespaced_schema(tools: list[ToolDefinition], namespace: str) -> str:
@@ -68,16 +73,7 @@ namespace {namespace} {{
 
 
 class NamespacedCedarAuthorization(InterventionHandler):
-    """Cedar authorization handler with namespace support.
-
-    When namespace is set, all Cedar entity references are prefixed:
-    - Action::"tool" becomes Namespace::Action::"tool"
-    - Resource::"agent" becomes Namespace::Resource::"default"
-    - User::"anonymous" becomes Namespace::User::"anonymous"
-
-    This is required when using policy generators like cedar-agent-policy-builder
-    that produce namespaced Cedar policies.
-    """
+    """Cedar authorization handler with namespace support."""
 
     name = "cedar-authorization"
 
@@ -283,26 +279,33 @@ cedar = NamespacedCedarAuthorization(
     ),
 )
 
-agent = Agent(
-    tools=[search, delete_record],
-    interventions=[cedar],
-)
 
-
-def main():
-    print("\n--- Namespaced policies: search is permitted ---")
-    agent(
-        "Search for quarterly reports",
-        invocation_state={"user_id": "alice"},
+def run_scenario(title: str, style: str, prompt: str, invocation_state: dict):
+    console.rule(f"[bold {style}]{title}[/]")
+    agent = Agent(
+        tools=[search, delete_record],
+        interventions=[cedar],
+        callback_handler=lambda **kwargs: None,
     )
-
-    print("\n\n--- Namespaced policies: delete_record is denied ---")
-    agent(
-        "Delete record 42",
-        invocation_state={"user_id": "alice"},
-    )
-    print("\n\n")
+    result = agent(prompt, invocation_state=invocation_state)
+    console.print(Panel(Markdown(str(result)), border_style=style))
+    console.print()
 
 
 if __name__ == "__main__":
-    main()
+    console.print(Panel("[bold]Cedar Namespaced Policies[/]\nUsing Agent::Action:: namespace prefixes", title="Demo"))
+    console.print()
+
+    run_scenario(
+        title="Namespaced: search is permitted",
+        style="green",
+        prompt="Search for quarterly reports",
+        invocation_state={"user_id": "alice"},
+    )
+
+    run_scenario(
+        title="Namespaced: delete_record is denied",
+        style="red",
+        prompt="Delete record 42",
+        invocation_state={"user_id": "alice"},
+    )

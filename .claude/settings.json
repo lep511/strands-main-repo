@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "cedar-cli": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "cedar-cli"],
+      "env": {},
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
