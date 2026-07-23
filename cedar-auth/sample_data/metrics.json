@@ -1,0 +1,6 @@
+{
+  "requests_today": 1423,
+  "avg_latency_ms": 45.2,
+  "error_rate": 0.02,
+  "top_endpoints": ["/api/users", "/api/auth", "/api/data"]
+}

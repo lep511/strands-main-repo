@@ -1,14 +1,14 @@
 // Admin can use all tools
 permit(
-  principal == User::"admin",
+  principal == AgentTools::User::"admin",
   action,
   resource
 );
 
 // Developer can only use read_file and list_directory
 permit(
-  principal == User::"developer",
-  action in [Action::"read_file", Action::"list_directory"],
+  principal == AgentTools::User::"developer",
+  action in [AgentTools::Action::"read_file", AgentTools::Action::"list_directory"],
   resource
 );
 
@@ -16,6 +16,6 @@ permit(
 forbid(
   principal,
   action,
-  resource
+  resource is AgentTools::Resource
 )
 when { resource.path like "/etc/*" };

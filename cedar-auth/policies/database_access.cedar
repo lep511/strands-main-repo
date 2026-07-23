@@ -9,7 +9,7 @@ when { context.session.role == "admin" };
 // Analysts can only query the database (read-only)
 permit(
   principal,
-  action == Action::"query_database",
+  action == AgentTools::Action::"query_database",
   resource
 )
 when { context.session.role == "analyst" };

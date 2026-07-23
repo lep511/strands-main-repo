@@ -60,7 +60,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: commentInput
     }
   };
@@ -69,7 +69,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: delete_fileInput
     }
   };
@@ -78,7 +78,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: executeInput
     }
   };
@@ -87,7 +87,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: list_directoryInput
     }
   };
@@ -96,7 +96,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: query_databaseInput
     }
   };
@@ -105,7 +105,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: read_fileInput
     }
   };
@@ -114,7 +114,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: viewInput
     }
   };
@@ -123,7 +123,7 @@ namespace AgentTools {
     principal: [User, UserGroup],
     resource: [Album, Resource],
     context: {
-      "": Context,
+      session: Session,
       input: write_fileInput
     }
   };

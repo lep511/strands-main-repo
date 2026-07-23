@@ -1,8 +1,8 @@
 permit (
-  principal in UserGroup::"friendsAndFamily",
-  action in [Action::"view", Action::"comment"], 
-  resource in Album::"vacationTrip"
+  principal in AgentTools::UserGroup::"friendsAndFamily",
+  action in [AgentTools::Action::"view", AgentTools::Action::"comment"],
+  resource in AgentTools::Album::"vacationTrip"
 )
 unless {
-  resource.tag =="private"
+  resource.tag == "private"
 };
