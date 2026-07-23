@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "cedar-schema-generator": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "cedar-schema-generator"
+      ],
+      "env": {}
+    }
+  }
+}

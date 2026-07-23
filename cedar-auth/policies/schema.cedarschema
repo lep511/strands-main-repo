@@ -1,0 +1,130 @@
+namespace AgentTools {
+  type Context = {
+    session: Session
+  };
+
+  type Session = {
+    role: String
+  };
+
+  type commentInput = {
+    resource_id: String,
+    text: String
+  };
+
+  type delete_fileInput = {
+    path: String
+  };
+
+  type executeInput = {
+    command: String,
+    path?: String
+  };
+
+  type list_directoryInput = {
+    path: String
+  };
+
+  type query_databaseInput = {
+    database?: String,
+    query: String
+  };
+
+  type read_fileInput = {
+    path: String
+  };
+
+  type viewInput = {
+    resource_id: String
+  };
+
+  type write_fileInput = {
+    content: String,
+    path: String
+  };
+
+  entity Album in [Album] = {
+    tag: String
+  };
+
+  entity Resource = {
+    path: String,
+    tag: String
+  };
+
+  entity User in [UserGroup];
+
+  entity UserGroup;
+
+  action "comment" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: commentInput
+    }
+  };
+
+  action "delete_file" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: delete_fileInput
+    }
+  };
+
+  action "execute" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: executeInput
+    }
+  };
+
+  action "list_directory" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: list_directoryInput
+    }
+  };
+
+  action "query_database" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: query_databaseInput
+    }
+  };
+
+  action "read_file" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: read_fileInput
+    }
+  };
+
+  action "view" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: viewInput
+    }
+  };
+
+  action "write_file" appliesTo {
+    principal: [User, UserGroup],
+    resource: [Album, Resource],
+    context: {
+      "": Context,
+      input: write_fileInput
+    }
+  };
+}
