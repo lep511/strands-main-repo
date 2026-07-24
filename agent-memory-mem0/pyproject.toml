@@ -1,5 +1,5 @@
 [project]
-name = "agent-memory"
+name = "agent-memory-mem0"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -9,6 +9,6 @@ dependencies = [
     "strands-agents[gemini]>=1.38.0",
     "strands-agents-tools>=0.5.2",
     "pydantic>=2.12.5",
-    "mem0ai>=2.0.1",
+    "mem0ai[nlp]>=2.0.1",
     "opensearch-py>=3.2.0",
 ]

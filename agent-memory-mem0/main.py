@@ -43,13 +43,13 @@ def setup_logger(name: str = __name__) -> logging.Logger:
 
 logger = setup_logger("memory_agent")
 
-model = GeminiModel(
-    client_args={"api_key": os.getenv("GEMINI_API_KEY")},
-    model_id="gemini-3.1-flash-lite-preview",
-    params={
-        "temperature": 1
-    }
-)
+# model = GeminiModel(
+#     client_args={"api_key": os.getenv("GEMINI_API_KEY")},
+#     model_id="gemini-3.1-flash-lite-preview",
+#     params={
+#         "temperature": 1
+#     }
+# )
 
 # ── Prompts ────────────────────────────────────────────────────────────────────
 MEMORY_SYSTEM_PROMPT = f"""You are a personal assistant that maintains context by remembering user details.
@@ -66,7 +66,7 @@ class MemoryAssistant:
     def __init__(self):
         self.mem0 = MemoryClient(api_key=MEMO_API_KEY)
         self.agent = Agent(
-            model=model,
+            # model=model,
             system_prompt=MEMORY_SYSTEM_PROMPT,
             tools=[use_agent],
         )
@@ -184,6 +184,6 @@ if __name__ == "__main__":
     assistant.initialize_demo_memories()
     print("Demo memories initialized!\n")
 
-    user_input = "What are my travel preferences?"
+    user_input = "What do you remember about me?"
     result = assistant.process_input(user_input)
     print(f"\n{result}\n")

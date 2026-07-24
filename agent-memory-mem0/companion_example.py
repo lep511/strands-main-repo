@@ -36,13 +36,13 @@ def setup_logger(name: str = __name__) -> logging.Logger:
 
 logger = setup_logger("memory_agent")
 
-model = GeminiModel(
-    client_args={"api_key": os.getenv("GEMINI_API_KEY")},
-    model_id="gemini-3.1-flash-lite-preview",
-    params={
-        "temperature": 1
-    }
-)
+# model = GeminiModel(
+#     client_args={"api_key": os.getenv("GEMINI_API_KEY")},
+#     model_id="gemini-3.1-flash-lite-preview",
+#     params={
+#         "temperature": 1
+#     }
+# )
 
 # ── Constante global ───────────────────────────────────────────────────────────
 USER_ID = "mem0_user"
@@ -56,7 +56,10 @@ def chat(user_input, user_id):
     context = "\\n".join(m["memory"] for m in memories["results"])
 
     system_prompt = f"You're Ray, a running coach. Memories:\\n{context}"
-    agent = Agent(model=model, system_prompt=system_prompt)
+    agent = Agent(
+        # model=model, 
+        system_prompt=system_prompt
+    )
 
     response = agent(user_input)
 
