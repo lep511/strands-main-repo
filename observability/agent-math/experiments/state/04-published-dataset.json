@@ -1,0 +1,12 @@
+{
+  "dataset_file": "/home/ssm-user/strands-main-repo/observability/agent-math/experiments/dataset_strands_math_agent_20260731.json",
+  "dataset_name": "strands_math_agent_seed_20260731",
+  "project_name": "test-project-new",
+  "version": 1,
+  "url": "https://us5.datadoghq.com/llm/datasets/9d0d1a61-126b-47c4-bdaa-9b2eae332750",
+  "record_count": 7,
+  "skipped_count": 13,
+  "pii_redactions": 0,
+  "tag_normalizations": 0,
+  "published_at": "2026-07-31T19:32:00Z"
+}

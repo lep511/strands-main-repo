@@ -1,0 +1,11 @@
+{
+  "mode": "offline_evaluators",
+  "output_path": "./experiments/evaluators_strands_math_agent.py",
+  "evaluator_names": [
+    "GuardrailComplianceEvaluator",
+    "RefusalFormatEvaluator",
+    "MathCorrectnessEvaluator"
+  ],
+  "ml_app": "strands-math-agent",
+  "generated_at": "2026-07-31T19:30:00Z"
+}

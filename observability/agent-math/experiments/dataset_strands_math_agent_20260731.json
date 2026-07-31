@@ -1,0 +1,37 @@
+[
+  {
+    "input_data": {"question": "Why do coastal cities tend to have milder temperatures than inland areas?"},
+    "expected_output": "I only handle math problems — feel free to ask me one!",
+    "metadata": {"category": "off_topic", "subcategory": "science", "trace_id": "6a6cf6bf00000000b9883e623d713ab8"}
+  },
+  {
+    "input_data": {"question": "Is free will an illusion? Summarize the main arguments for and against."},
+    "expected_output": "I only handle math problems — feel free to ask me one!",
+    "metadata": {"category": "off_topic", "subcategory": "philosophy", "trace_id": "6a6cf6b90000000037215c993c8044c5"}
+  },
+  {
+    "input_data": {"question": "Calculate the sum of the first 20 prime numbers"},
+    "expected_output": "639",
+    "metadata": {"category": "math", "subcategory": "arithmetic", "trace_id": "6a6cf6ad00000000fd8c4a56278f8398"}
+  },
+  {
+    "input_data": {"question": "How does El Nino affect global weather patterns?"},
+    "expected_output": "I only handle math problems — feel free to ask me one!",
+    "metadata": {"category": "off_topic", "subcategory": "science", "trace_id": "6a6cf6a10000000065f4b5d511acc225"}
+  },
+  {
+    "input_data": {"question": "What is the result of (256 / 16) * (9 + 3)?"},
+    "expected_output": "192",
+    "metadata": {"category": "math", "subcategory": "arithmetic", "trace_id": "6a6cf63400000000b59612eace6e802b"}
+  },
+  {
+    "input_data": {"question": "What is the difference between a hurricane and a typhoon?"},
+    "expected_output": "I only handle math problems — feel free to ask me one!",
+    "metadata": {"category": "off_topic", "subcategory": "science", "trace_id": "6a6cf60900000000fb0f270218ad70d8"}
+  },
+  {
+    "input_data": {"question": "What is the square root of 144?"},
+    "expected_output": "12",
+    "metadata": {"category": "math", "subcategory": "arithmetic", "trace_id": "6a6cf22b00000000c1ac77f5ed06ba79"}
+  }
+]

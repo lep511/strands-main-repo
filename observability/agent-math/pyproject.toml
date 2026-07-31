@@ -1,0 +1,21 @@
+[project]
+name = "agent-math"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "lep511", email = "estebanpbuday@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "ddtrace>=4.12.2",
+    "strands-agents>=1.50.2",
+    "strands-agents-tools>=0.8.5",
+]
+
+[project.scripts]
+agent-math = "agent_math:main"
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.13.0"]
+build-backend = "uv_build"
