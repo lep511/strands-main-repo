@@ -68,7 +68,15 @@ class RefundCedarAuthorization(InterventionHandler):
 
     def before_tool_call(self, event: BeforeToolCallEvent, **kwargs: Any) -> Proceed | Deny:
         invocation_state = event.invocation_state
-        principal = self._principal_resolver(invocation_state)
+
+        try:
+            principal = self._principal_resolver(invocation_state)
+        except Exception as e:
+            if self._on_error == "proceed":
+                return Proceed(reason=f"principal_resolver failed but on_error='proceed': {e}")
+            if self._on_error == "deny":
+                return Deny(reason=f"principal_resolver failed: {e}")
+            raise
 
         if not principal or not principal.get("type") or not principal.get("id"):
             return Deny(reason="No principal identity found in invocation state")
@@ -97,7 +105,8 @@ class RefundCedarAuthorization(InterventionHandler):
         try:
             result = cedarpy.is_authorized(request, self._policies, self._entities)
         except Exception as e:
-            return Deny(reason=f"Cedar evaluation failed: {e}")
+            # Cedar engine failures are always fail-closed regardless of on_error
+            return Deny(reason=f"Cedar engine error (always denied): {e}")
 
         if not result.allowed:
             refund_amount = tool_input.get("refund_amount", 0)

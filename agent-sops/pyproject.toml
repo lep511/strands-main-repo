@@ -1,0 +1,28 @@
+[project]
+name = "agent-sops"
+version = "0.1.0"
+description = "CLI agent for code task generation using Strands Agents with Rich markdown rendering"
+readme = "README.md"
+authors = [
+    { name = "lep511", email = "estebanpbuday@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "rich>=15.0.0",
+    "strands-agents>=1.50.2",
+    "strands-agents-sops>=1.1.2",
+    "strands-agents-tools>=0.0.1",
+]
+
+[project.scripts]
+agent-sops = "agent_sops:main"
+
+[build-system]
+requires = ["uv_build>=0.12.0,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "psutil>=7.2.2",
+    "pytest>=9.1.1",
+]
