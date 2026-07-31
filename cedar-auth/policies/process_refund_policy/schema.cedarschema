@@ -1,0 +1,23 @@
+namespace AgentCore {
+  type RefundInput = {
+    refundAmount: Long,
+    orderDate: datetime,
+  };
+
+  type SystemContext = {
+    now: datetime,
+  };
+
+  entity User;
+
+  entity Resource;
+
+  action "ProcessRefund" appliesTo {
+    principal: [User],
+    resource: [Resource],
+    context: {
+      input: RefundInput,
+      system: SystemContext,
+    }
+  };
+}

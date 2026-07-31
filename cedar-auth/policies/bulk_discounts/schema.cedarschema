@@ -1,0 +1,18 @@
+namespace AgentCore {
+  type BulkDiscountInput = {
+    orderQuantity: Long,
+    productTypes: Set<String>,
+  };
+
+  entity OAuthUser tags String;
+
+  entity Resource;
+
+  action "ApplyBulkDiscount" appliesTo {
+    principal: [OAuthUser],
+    resource: [Resource],
+    context: {
+      input: BulkDiscountInput,
+    }
+  };
+}
