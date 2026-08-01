@@ -93,7 +93,7 @@ class RefundCedarAuthorization(InterventionHandler):
             "resource": 'AgentCore::Resource::"refund_system"',
             "context": {
                 "input": {
-                    "refundAmount": tool_input.get("refund_amount", 0),
+                    "refundAmount": int(tool_input.get("refund_amount", 0)),
                     "orderDate": {"__extn": {"fn": "datetime", "arg": order_date}},
                 },
                 "system": {
@@ -109,7 +109,7 @@ class RefundCedarAuthorization(InterventionHandler):
             return Deny(reason=f"Cedar engine error (always denied): {e}")
 
         if not result.allowed:
-            refund_amount = tool_input.get("refund_amount", 0)
+            refund_amount = int(tool_input.get("refund_amount", 0))
             reasons = []
             if refund_amount >= 500:
                 reasons.append(f"Refund amount ${refund_amount} exceeds the $500 limit.")

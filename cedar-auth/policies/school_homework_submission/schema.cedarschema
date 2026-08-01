@@ -1,0 +1,26 @@
+namespace AgentCore {
+  type HomeworkInput = {
+    hasFullName: Bool,
+    hasStudentID: Bool,
+    submissionDate: Long,
+    submissionTime: Long,
+    submittedThroughPortal: Bool,
+    homeworkType: String,
+    showsIntermediateSteps: Bool,
+    wordCount: Long,
+    quotedMaterialPercentage: Long,
+    fileNameFollowsFormat: Bool,
+  };
+
+  entity User;
+
+  entity Resource;
+
+  action "ValidateHomeworkSubmission" appliesTo {
+    principal: [User],
+    resource: [Resource],
+    context: {
+      input: HomeworkInput,
+    }
+  };
+}

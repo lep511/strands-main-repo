@@ -95,7 +95,10 @@ class BulkDiscountCedarAuthorization(InterventionHandler):
             "action": f'AgentCore::Action::"{tool_name}"',
             "resource": 'AgentCore::Resource::"order_system"',
             "context": {
-                "input": tool_input,
+                "input": {
+                    "orderQuantity": int(tool_input.get("orderQuantity", 0)),
+                    "productTypes": list(tool_input.get("productTypes", [])),
+                },
             },
         }
 
@@ -108,8 +111,8 @@ class BulkDiscountCedarAuthorization(InterventionHandler):
         if not result.allowed:
             reasons = []
             customer_tier = invocation_state.get("customer_tier", "unknown")
-            order_qty = tool_input.get("orderQuantity", 0)
-            product_types = tool_input.get("productTypes", [])
+            order_qty = int(tool_input.get("orderQuantity", 0))
+            product_types = list(tool_input.get("productTypes", []))
             excluded = {"limited_edition", "seasonal_specials"}
 
             if customer_tier != "Platinum":

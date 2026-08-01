@@ -1,0 +1,123 @@
+{
+    "version": "1",
+    "types": [
+        {
+            "name": "HomeworkType",
+            "values": [
+                {
+                    "value": "MATHEMATICAL_SOLUTION",
+                    "description": "A mathematical solution"
+                },
+                {
+                    "value": "WRITTEN_RESPONSE",
+                    "description": "A written, prose response to a question"
+                }
+            ],
+            "description": "The type of homework being submitted"
+        }
+    ],
+    "rules": [
+        {
+            "id": "EEL3JZTECO2U",
+            "expression": "(=> (not hasFullName)\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if hasFullName is false, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "V9FX10S6CV77",
+            "expression": "(=> (not hasStudentID)\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if hasStudentID is false, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "ASG393KRYHJO",
+            "expression": "(=> (or (> submissionDate 0)\n        (and (= submissionDate 0)\n             (> submissionTime 23.59)))\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if at least one of the following 2 statements is true: 1) submissionDate is greater than 0; 2) submissionDate is equal to 0 and submissionTime is greater than 23.59, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "CRV0DJU50V42",
+            "expression": "(=> (not submittedThroughPortal)\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if submittedThroughPortal is false, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "LXR51H9WUV8J",
+            "expression": "(=> (and (= homeworkType\n            MATHEMATICAL_SOLUTION)\n         (not showsIntermediateSteps))\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if homeworkType is equal to MATHEMATICAL_SOLUTION and showsIntermediateSteps is false, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "OJDJ7JDKAIO9",
+            "expression": "(=> (and (= homeworkType\n            WRITTEN_RESPONSE)\n         (< wordCount 250))\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if homeworkType is equal to WRITTEN_RESPONSE and wordCount is less than 250, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "AFEER8SBWDJR",
+            "expression": "(=> (and (= homeworkType\n            WRITTEN_RESPONSE)\n         (> quotedMaterialPercentage\n            5))\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if homeworkType is equal to WRITTEN_RESPONSE and quotedMaterialPercentage is greater than 5, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "ROFYF8U314FN",
+            "expression": "(=> (not fileNameFollowsFormat)\n    (not isSubmissionAcceptable))",
+            "alternateExpression": "if fileNameFollowsFormat is false, then isSubmissionAcceptable is false"
+        },
+        {
+            "id": "YX7TFLKW6A5U",
+            "expression": "(= isSubmissionAcceptable\n   (and (<= submissionDate 0)\n        (<= submissionTime 23.59)\n        fileNameFollowsFormat\n        hasFullName\n        hasStudentID\n        submittedThroughPortal\n        (=> (= homeworkType\n               MATHEMATICAL_SOLUTION)\n            showsIntermediateSteps)\n        (=> (= homeworkType\n               WRITTEN_RESPONSE)\n            (and (> wordCount 250)\n                 (< quotedMaterialPercentage\n                    5.0)))))",
+            "alternateExpression": "isSubmissionAcceptable is equal to the following 8 statements are true: 1) submissionDate is no more than 0; 2) submissionTime is no more than 23.59; 3) fileNameFollowsFormat is true; 4) hasFullName is true; 5) hasStudentID is true; 6) submittedThroughPortal is true; 7) if homeworkType is equal to MATHEMATICAL_SOLUTION, then showsIntermediateSteps is true; 8) if homeworkType is equal to WRITTEN_RESPONSE, then wordCount is greater than 250 and quotedMaterialPercentage is less than 5.0"
+        }
+    ],
+    "variables": [
+        {
+            "name": "hasFullName",
+            "type": "BOOL",
+            "description": "Indicates whether the homework submission includes the student's full name at the top of the first page"
+        },
+        {
+            "name": "hasStudentID",
+            "type": "BOOL",
+            "description": "Indicates whether the homework submission includes the student's ID number at the top of the first page"
+        },
+        {
+            "name": "submissionTime",
+            "type": "NUMBER",
+            "description": "The time when the submission was received, expressed in 24-hour format (0.00-23.59). Don't translate 30 minutes into .5. For example, set a time of 23:30 to 23.3, not 23.5. The minimum value is 0 and the maximum value is 23.59"
+        },
+        {
+            "name": "submissionDate",
+            "type": "INT",
+            "description": "The date when the submission was received, relative to the due date (0 means on the due date, negative values mean before the due date, positive values mean after the due date)"
+        },
+        {
+            "name": "submittedThroughPortal",
+            "type": "BOOL",
+            "description": "Indicates whether the homework was submitted through the official school portal"
+        },
+        {
+            "name": "showsIntermediateSteps",
+            "type": "BOOL",
+            "description": "For mathematical solutions, indicates whether all intermediate calculation steps are shown"
+        },
+        {
+            "name": "wordCount",
+            "type": "INT",
+            "description": "For written responses, the total number of words in the submission"
+        },
+        {
+            "name": "quotedMaterialPercentage",
+            "type": "NUMBER",
+            "description": "For written responses, the percentage of the submission that consists of quoted material (ranges from 0 to 100)"
+        },
+        {
+            "name": "fileNameFollowsFormat",
+            "type": "BOOL",
+            "description": "Indicates whether the file name follows the required format 'AssignmentNumber_LastName_FirstName'"
+        },
+        {
+            "name": "isSubmissionAcceptable",
+            "type": "BOOL",
+            "description": "Indicates whether the homework submission meets all requirements to be considered acceptable"
+        },
+        {
+            "name": "homeworkType",
+            "type": "HomeworkType",
+            "description": "The type of homework being submitted. Words like essay refer to a WRITTEN_RESPONSE."
+        }
+    ]
+}
