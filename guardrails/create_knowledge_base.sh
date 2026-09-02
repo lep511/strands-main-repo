@@ -79,10 +79,12 @@ ROLE_OUTPUT=$(aws iam create-role \
       }
     }]
   }" --output json 2>&1) || true
+ROLE_CREATED=false
 if echo "${ROLE_OUTPUT}" | grep -q "EntityAlreadyExists"; then
   echo "  Role already exists."
 elif echo "${ROLE_OUTPUT}" | grep -q "Role"; then
   echo "  Role created."
+  ROLE_CREATED=true
 else
   echo "  ERROR creating role: ${ROLE_OUTPUT}" && exit 1
 fi
@@ -117,8 +119,10 @@ aws iam put-role-policy \
   }"
 echo "  Role and policies ready."
 
-echo "  Waiting 15s for IAM propagation..."
-sleep 15
+if [ "${ROLE_CREATED}" = true ]; then
+  echo "  Waiting 15s for IAM propagation..."
+  sleep 15
+fi
 
 # --- Step 4: Create Knowledge Base ---
 echo ""
