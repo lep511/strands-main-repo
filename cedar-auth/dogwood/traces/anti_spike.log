@@ -1,0 +1,4 @@
+@0    Transfer::response    { amount: 1000 }               // $1,000 settled this hour
+@60   Transfer::request     { amount: 500 }   -> ALLOW     // 500 <= 1,000 settled
+@120  Transfer::request     { amount: 2000 }  -> DENY      // 2,000 > 1,000 settled
+@180  Transfer::request     { amount: 800 }   -> ALLOW     // 800 <= 1,000 settled

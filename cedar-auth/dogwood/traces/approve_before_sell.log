@@ -1,0 +1,4 @@
+@0     SellShares::request      { stock: "AMZN", shares: 100 }                  -> DENY
+@1700  ApproveSale::response    { stock: "AMZN", shares: 100, approved: true }
+@1800  SellShares::request      { stock: "AMZN", shares: 100 }                  -> ALLOW
+@7200  SellShares::request      { stock: "AMZN", shares: 100 }                  -> DENY

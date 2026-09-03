@@ -1,0 +1,4 @@
+@0    Transfer::request  { amount: 2000 }  -> ALLOW   // running total: $2,000
+@60   Transfer::request  { amount: 2000 }  -> ALLOW   // running total: $4,000
+@120  Transfer::request  { amount: 2000 }  -> DENY    // running total: $6,000 > $5,000
+@180  Transfer::request  { amount: 500 }   -> DENY    // running total: $6,500 > $5,000

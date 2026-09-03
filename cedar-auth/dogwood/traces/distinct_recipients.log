@@ -1,0 +1,5 @@
+@0    Transfer::request  { user: "bob" }    -> ALLOW   // 1 distinct recipient
+@60   Transfer::request  { user: "carol" }  -> ALLOW   // 2
+@120  Transfer::request  { user: "dave" }   -> ALLOW   // 3
+@180  Transfer::request  { user: "erin" }   -> DENY    // would be 4th distinct recipient
+@240  Transfer::request  { user: "bob" }    -> DENY    // still 4 (bob, carol, dave, erin)

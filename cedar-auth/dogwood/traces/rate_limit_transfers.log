@@ -1,0 +1,6 @@
+@0    Transfer::request  { amount: 20 }  -> ALLOW   // 1st transfer
+@60   Transfer::request  { amount: 20 }  -> ALLOW   // 2nd
+@120  Transfer::request  { amount: 20 }  -> ALLOW   // 3rd
+@180  Transfer::request  { amount: 20 }  -> ALLOW   // 4th
+@240  Transfer::request  { amount: 20 }  -> ALLOW   // 5th
+@300  Transfer::request  { amount: 20 }  -> DENY    // 6th in the window exceeds limit
