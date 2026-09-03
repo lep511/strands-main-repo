@@ -1,0 +1,15 @@
+// Permit a sale only if approval for the same amount of the same
+// stock came back granted within the last hour.
+@id("approve_before_sell")
+permit (
+    principal,
+    action == AgentCore::Action::"SellShares",
+    resource
+)
+when temporal {
+    formerly within 1h AgentCore::Action::"ApproveSale"::response{
+        input.stock:     context.input.stock,
+        input.shares:    context.input.shares,
+        output.approved: true
+    }
+};

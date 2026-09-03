@@ -1,0 +1,11 @@
+// Forbid a transfer once more than $5,000 has been
+// transferred in the last hour, across any number of transfers.
+@id("dollar_cap")
+forbid (
+    principal,
+    action == AgentCore::Action::"Transfer",
+    resource
+)
+when temporal {
+    sum_within(a, 1h, AgentCore::Action::"Transfer"::request{ input.amount: a }) > 5000
+};

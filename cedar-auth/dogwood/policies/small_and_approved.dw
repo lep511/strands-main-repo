@@ -1,0 +1,19 @@
+// Permit a sale only if it is small (point-in-time Cedar check)
+// AND approval for the same stock and amount came back granted
+// within the last hour (temporal check).
+@id("small_and_approved")
+permit (
+    principal,
+    action == AgentCore::Action::"SellShares",
+    resource
+)
+when {
+    context.input.shares <= 100
+    && temporal {
+        formerly within 1h AgentCore::Action::"ApproveSale"::response{
+            input.stock:     context.input.stock,
+            input.shares:    context.input.shares,
+            output.approved: true
+        }
+    }
+};

@@ -1,0 +1,11 @@
+// Forbid a transfer that would make it the fourth distinct
+// recipient paid in the last hour.
+@id("distinct_recipients_limit")
+forbid (
+    principal,
+    action == AgentCore::Action::"Transfer",
+    resource
+)
+when temporal {
+    count_distinct_within(u, 1h, AgentCore::Action::"Transfer"::request{ input.user: u }) > 3
+};

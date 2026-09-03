@@ -1,0 +1,10 @@
+// Forbid a transfer once five have already gone out in the last hour.
+@id("rate_limit_transfers")
+forbid (
+    principal,
+    action == AgentCore::Action::"Transfer",
+    resource
+)
+when temporal {
+    count_within(1h, AgentCore::Action::"Transfer"::request{ input.amount: _ }) > 5
+};

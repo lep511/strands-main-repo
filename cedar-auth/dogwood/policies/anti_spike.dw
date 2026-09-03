@@ -1,0 +1,13 @@
+// Forbid a transfer larger than everything already
+// settled in the last hour, combined.
+@id("anti_spike")
+forbid (
+    principal,
+    action == AgentCore::Action::"Transfer",
+    resource
+)
+when temporal {
+    bind(prior,
+        sum_within(a, 1h, AgentCore::Action::"Transfer"::response{ input.amount: a }),
+        context.input.amount > prior)
+};
