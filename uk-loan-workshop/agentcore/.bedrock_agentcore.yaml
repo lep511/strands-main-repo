@@ -1,0 +1,62 @@
+default_agent: LoanOrchestrator
+agents:
+  LoanOrchestrator:
+    name: LoanOrchestrator
+    language: python
+    node_version: null
+    entrypoint: /home/participant/workshop/agentcore/loan_orchestrator.py
+    deployment_type: container
+    runtime_type: null
+    platform: linux/arm64
+    container_runtime: none
+    source_path: null
+    aws:
+      execution_role: arn:aws:iam::166085688722:role/strands-loan-workshop-strands-agent-role
+      execution_role_auto_create: false
+      account: '166085688722'
+      region: us-east-1
+      ecr_repository: 166085688722.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-loanorchestrator
+      ecr_auto_create: false
+      s3_path: null
+      s3_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+        network_mode_config: null
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+      lifecycle_configuration:
+        idle_runtime_session_timeout: null
+        max_lifetime: null
+    bedrock_agentcore:
+      agent_id: LoanOrchestrator-uq6UFWCsut
+      agent_arn: arn:aws:bedrock-agentcore:us-east-1:166085688722:runtime/LoanOrchestrator-uq6UFWCsut
+      agent_session_id: null
+    codebuild:
+      project_name: bedrock-agentcore-loanorchestrator-builder
+      execution_role: arn:aws:iam::166085688722:role/AmazonBedrockAgentCoreSDKCodeBuild-us-east-1-1e0406e9ce
+      source_bucket: bedrock-agentcore-codebuild-sources-166085688722-us-east-1
+    memory:
+      mode: NO_MEMORY
+      memory_id: null
+      memory_arn: null
+      memory_name: null
+      event_expiry_days: 30
+      first_invoke_memory_check_done: false
+      was_created_by_toolkit: false
+    identity:
+      credential_providers: []
+      workload: null
+    aws_jwt:
+      enabled: false
+      audiences: []
+      signing_algorithm: ES384
+      issuer_url: null
+      duration_seconds: 300
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null
+    api_key_env_var_name: null
+    api_key_credential_provider_name: null
+    is_generated_by_agentcore_create: false

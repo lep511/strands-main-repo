@@ -1,0 +1,44 @@
+{
+  "targets": [
+    {
+      "name": "account-data-loader",
+      "type": "lambda",
+      "config": {
+        "functionName": "strands-loan-workshop-account-data-loader",
+        "region": "us-east-1"
+      }
+    },
+    {
+      "name": "eligibility-filter",
+      "type": "lambda",
+      "config": {
+        "functionName": "strands-loan-workshop-eligibility-filter",
+        "region": "us-east-1"
+      }
+    },
+    {
+      "name": "loan-product-matcher",
+      "type": "lambda",
+      "config": {
+        "functionName": "strands-loan-workshop-loan-product-matcher",
+        "region": "us-east-1"
+      }
+    },
+    {
+      "name": "risk-assessment",
+      "type": "lambda",
+      "config": {
+        "functionName": "strands-loan-workshop-risk-assessment",
+        "region": "us-east-1"
+      }
+    },
+    {
+      "name": "approval-decision",
+      "type": "lambda",
+      "config": {
+        "functionName": "strands-loan-workshop-approval-decision",
+        "region": "us-east-1"
+      }
+    }
+  ]
+}

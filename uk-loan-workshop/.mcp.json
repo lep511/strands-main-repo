@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "loan-workshop": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/home/participant/workshop/mcp_server/server.py"],
+      "env": {
+        "AWS_DEFAULT_REGION": "us-east-1",
+        "PROJECT_NAME": "strands-loan",
+        "ENVIRONMENT": "workshop",
+        "DYNAMODB_TABLE": "strands-loan-workshop-loan-applications",
+        "BEDROCK_MODEL_ID": "us.anthropic.claude-sonnet-4-6"
+      }
+    }
+  }
+}

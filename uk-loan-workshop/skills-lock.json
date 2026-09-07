@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "python-testing": {
+      "source": "athola/claude-night-market",
+      "sourceType": "github",
+      "skillPath": "plugins/parseltongue/skills/python-testing/SKILL.md",
+      "computedHash": "3902618e6eacea5982b70ba3e30d0a00fc4ae88bd76826a03aaabd972bd50f4f"
+    }
+  }
+}

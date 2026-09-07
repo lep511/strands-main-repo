@@ -1,0 +1,11 @@
+[project]
+name = "LoanOrchestrator"
+version = "0.1.0"
+dependencies = [
+    "strands-agents",
+    "mcp"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

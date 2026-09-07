@@ -1,0 +1,13 @@
+# Risk Assessment - Cedar Test Prompts
+
+## 1. Happy path (loan_officer - should PASS)
+Process PIN security for account test-001. Create and validate the transaction PIN for disbursement authorization. User identity: user_id=loan-officer-1, role=loan_officer
+
+## 2. Analyst blocked (no permit - should DENY both tools)
+Process PIN security for account test-001. Create and validate the transaction PIN. User identity: user_id=analyst-1, role=analyst
+
+## 3. Validate before create (workflow enforcement - should DENY validate)
+Validate the PIN 1234 for account test-003 for disbursement. Do NOT create a PIN first, only validate. User identity: user_id=loan-officer-1, role=loan_officer
+
+## 4. No identity (fail-closed - should DENY all)
+Process PIN security for account test-001. Create and validate the transaction PIN.
