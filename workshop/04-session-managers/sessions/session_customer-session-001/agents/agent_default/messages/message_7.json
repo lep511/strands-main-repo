@@ -1,0 +1,26 @@
+{
+  "message": {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Here are your orders, Sarah:\n\n1. **ORD-5521** — Wireless Headphones — $79.99\n   - Status: ✅ Delivered (April 28, 2025)\n   - Tracking: TRK-998877\n\n2. **ORD-5488** — USB-C Hub — $45.00\n   - Status: 📦 Shipped (Est. Delivery: May 6, 2025)\n   - Tracking: TRK-887766\n\nIs there anything else I can help you with regarding these orders?"
+      }
+    ],
+    "metadata": {
+      "usage": {
+        "inputTokens": 1511,
+        "outputTokens": 136,
+        "totalTokens": 1647
+      },
+      "metrics": {
+        "latencyMs": 1720,
+        "timeToFirstByteMs": 866
+      }
+    },
+    "tracking_id": "f74c6369-93f3-4653-85ff-6763e7bac6ad"
+  },
+  "message_id": 7,
+  "redact_message": null,
+  "created_at": "2026-09-10T20:44:40.400266+00:00",
+  "updated_at": "2026-09-10T20:44:40.400281+00:00"
+}

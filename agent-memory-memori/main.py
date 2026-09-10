@@ -19,7 +19,7 @@ logging.getLogger("strands").setLevel(logging.CRITICAL)
 console = Console()
 
 MEMORI_URL = "https://api.memorilabs.ai/mcp/"
-ENTITY_ID = "user_123"
+ENTITY_ID = "user_1001"
 PROCESS_ID = "my_agent"
 
 

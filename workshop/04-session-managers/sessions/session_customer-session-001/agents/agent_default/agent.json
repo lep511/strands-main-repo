@@ -1,0 +1,23 @@
+{
+  "agent_id": "default",
+  "state": {
+    "agent_skills": {
+      "last_injected_xml": "<available_skills>\n<skill>\n<name>account-troubleshooting</name>\n<description>Guide for helping customers with account issues including password resets, identity verification, and account updates.</description>\n<location>skills/account-troubleshooting/SKILL.md</location>\n</skill>\n<skill>\n<name>order-tracking</name>\n<description>Help customers check the status of their orders, understand delivery timelines, and escalate delayed shipments.</description>\n<location>skills/order-tracking/SKILL.md</location>\n</skill>\n<skill>\n<name>refund-processing</name>\n<description>Step-by-step process for handling customer refund requests, including order verification, return window checks, and refund issuance.</description>\n<location>skills/refund-processing/SKILL.md</location>\n</skill>\n</available_skills>"
+    }
+  },
+  "conversation_manager_state": {
+    "__name__": "SlidingWindowConversationManager",
+    "removed_message_count": 0,
+    "model_call_count": 0
+  },
+  "_internal_state": {
+    "interrupt_state": {
+      "interrupts": {},
+      "context": {},
+      "activated": false
+    },
+    "model_state": {}
+  },
+  "created_at": "2026-09-10T20:44:17.389523+00:00",
+  "updated_at": "2026-09-10T20:44:38.618793+00:00"
+}

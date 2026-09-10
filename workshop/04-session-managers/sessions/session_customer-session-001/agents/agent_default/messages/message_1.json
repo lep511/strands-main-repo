@@ -1,0 +1,35 @@
+{
+  "message": {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Sure! Let me look up your account right away."
+      },
+      {
+        "toolUse": {
+          "toolUseId": "tooluse_FMoJA3pWN4p81kgYgINv0c",
+          "name": "lookup_customer",
+          "input": {
+            "customer_id": "C-1001"
+          }
+        }
+      }
+    ],
+    "metadata": {
+      "usage": {
+        "inputTokens": 1127,
+        "outputTokens": 70,
+        "totalTokens": 1197
+      },
+      "metrics": {
+        "latencyMs": 1365,
+        "timeToFirstByteMs": 1017
+      }
+    },
+    "tracking_id": "5e7ac705-b0d6-46c5-a4fc-ccd8b6604023"
+  },
+  "message_id": 1,
+  "redact_message": null,
+  "created_at": "2026-09-10T20:44:18.943961+00:00",
+  "updated_at": "2026-09-10T20:44:18.943976+00:00"
+}

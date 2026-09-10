@@ -1,0 +1,35 @@
+{
+  "message": {
+    "role": "assistant",
+    "content": [
+      {
+        "text": "Of course! Let me pull up your order history right away."
+      },
+      {
+        "toolUse": {
+          "toolUseId": "tooluse_CXEkXkkoqcEK7MPEZyHLUN",
+          "name": "get_order_history",
+          "input": {
+            "customer_id": "C-1001"
+          }
+        }
+      }
+    ],
+    "metadata": {
+      "usage": {
+        "inputTokens": 1315,
+        "outputTokens": 74,
+        "totalTokens": 1389
+      },
+      "metrics": {
+        "latencyMs": 1354,
+        "timeToFirstByteMs": 1018
+      }
+    },
+    "tracking_id": "c06ab7e5-e385-4e00-9a95-80b8179712d9"
+  },
+  "message_id": 5,
+  "redact_message": null,
+  "created_at": "2026-09-10T20:44:38.616893+00:00",
+  "updated_at": "2026-09-10T20:44:38.616909+00:00"
+}

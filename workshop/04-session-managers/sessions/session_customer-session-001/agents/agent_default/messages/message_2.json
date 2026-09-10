@@ -1,0 +1,23 @@
+{
+  "message": {
+    "role": "user",
+    "content": [
+      {
+        "toolResult": {
+          "toolUseId": "tooluse_FMoJA3pWN4p81kgYgINv0c",
+          "status": "success",
+          "content": [
+            {
+              "text": "Customer: Sarah Johnson\nEmail: sarah.johnson@email.com\nPhone: 555-0142\nAccount Status: active"
+            }
+          ]
+        }
+      }
+    ],
+    "tracking_id": "7d54fa3b-3cab-47e4-99ff-237287086537"
+  },
+  "message_id": 2,
+  "redact_message": null,
+  "created_at": "2026-09-10T20:44:18.945514+00:00",
+  "updated_at": "2026-09-10T20:44:18.945524+00:00"
+}

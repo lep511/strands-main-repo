@@ -1,0 +1,15 @@
+{
+  "message": {
+    "role": "user",
+    "content": [
+      {
+        "text": "What orders do I have? You should already know my customer ID."
+      }
+    ],
+    "tracking_id": "9d05528f-7d61-4b2f-862c-9d2afb806a0c"
+  },
+  "message_id": 4,
+  "redact_message": null,
+  "created_at": "2026-09-10T20:44:37.079076+00:00",
+  "updated_at": "2026-09-10T20:44:37.079086+00:00"
+}

@@ -1,0 +1,23 @@
+{
+  "message": {
+    "role": "user",
+    "content": [
+      {
+        "toolResult": {
+          "toolUseId": "tooluse_CXEkXkkoqcEK7MPEZyHLUN",
+          "status": "success",
+          "content": [
+            {
+              "text": "Order ORD-5521: Wireless Headphones — $79.99 [Delivered] Ordered: 2025-04-20 Delivered: 2025-04-28 Tracking: TRK-998877\nOrder ORD-5488: USB-C Hub — $45.00 [Shipped] Ordered: 2025-05-01 Est. Delivery: 2025-05-06 Tracking: TRK-887766"
+            }
+          ]
+        }
+      }
+    ],
+    "tracking_id": "c8855383-f7ed-41e7-8090-07b3701a9a94"
+  },
+  "message_id": 6,
+  "redact_message": null,
+  "created_at": "2026-09-10T20:44:38.618390+00:00",
+  "updated_at": "2026-09-10T20:44:38.618399+00:00"
+}
