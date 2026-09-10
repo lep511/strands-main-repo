@@ -1,0 +1,19 @@
+[project]
+name = "mcp-memori"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "memori>=3.3.6",
+    "python-dotenv>=1.2.3",
+    "rich>=15.0.0",
+    "strands-agents>=1.55.0",
+]
+
+[project.scripts]
+mcp-memori = "mcp_memori:main"
+
+[build-system]
+requires = ["uv_build>=0.12.12,<0.13.0"]
+build-backend = "uv_build"
