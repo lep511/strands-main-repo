@@ -6,6 +6,7 @@ import sys
 
 import httpx2
 from mcp.client.streamable_http import streamable_http_client
+from customer_service_tools import lookup_customer, get_order_history, process_refund
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
@@ -19,7 +20,7 @@ logging.getLogger("strands").setLevel(logging.CRITICAL)
 console = Console()
 
 MEMORI_URL = "https://api.memorilabs.ai/mcp/"
-ENTITY_ID = "user_1001"
+ENTITY_ID = "user_1256"
 PROCESS_ID = "my_agent"
 
 
@@ -32,6 +33,13 @@ def build_system_prompt() -> str:
 Current date: {today}
 
 You have access to memory tools via MCP. Use them proactively:
+
+## CRITICAL: Always recall before responding
+- BEFORE answering ANY user request, ALWAYS call memori_recall first to check if you have
+  relevant context (e.g. customer IDs, preferences, prior conversations).
+- This is especially important when the user asks you to do something that requires an identifier
+  or context you don't have in the current conversation — memory may already have it.
+- Never ask the user for information that might already be stored in memory. Check memory first.
 
 ## Storing memories
 - When the user shares preferences, facts, or personal info → call memori_advanced_augmentation
@@ -99,7 +107,8 @@ def main():
     with mcp_client:
         show_tools(mcp_client)
 
-        tools = mcp_client.list_tools_sync()
+        tools = [lookup_customer, get_order_history, process_refund]
+        tools += mcp_client.list_tools_sync()
         agent = Agent(
             tools=tools,
             system_prompt=build_system_prompt(),
