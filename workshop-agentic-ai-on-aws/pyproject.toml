@@ -38,4 +38,5 @@ dependencies = [
     "langgraph>=1.0.10",
     "langchain-voyageai>=0.4.1",
     "tiktoken>=0.7.0",
+    "strands-xai>=0.2.0",
 ]

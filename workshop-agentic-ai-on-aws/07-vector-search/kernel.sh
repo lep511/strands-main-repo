@@ -1,0 +1,1 @@
+uv run python -m ipykernel install --user --name=workshop --display-name "Python 3.13 (workshop)"

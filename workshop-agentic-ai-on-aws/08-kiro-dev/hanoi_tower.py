@@ -11,11 +11,10 @@ from strands.tools import tool
 from strands.telemetry import StrandsTelemetry
 
 
-# OTLP configuration
-os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4318"
-
-strands_telemetry = StrandsTelemetry()
-strands_telemetry.setup_otlp_exporter()
+# OTLP configuration — only enable when a collector endpoint is set
+if os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT"):
+    strands_telemetry = StrandsTelemetry()
+    strands_telemetry.setup_otlp_exporter()
 
 
 # Global variable holding the Tower of Hanoi state
@@ -170,7 +169,7 @@ def main():
     # Create the Agent
     agent = Agent(
         name="hanoi_tower_solver",
-        model="us.anthropic.claude-sonnet-4-20250514-v1:0",
+        model="us.anthropic.claude-sonnet-4-6",
         system_prompt="""You are an expert AI assistant that solves the Tower of Hanoi puzzle.
 
 Tower of Hanoi rules:
