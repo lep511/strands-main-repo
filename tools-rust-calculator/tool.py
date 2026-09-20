@@ -7,7 +7,7 @@ from typing import Any
 
 from strands import tool
 
-BINARY_PATH = Path(__file__).parent / "target" / "release" / "rust_calculator"
+BINARY_PATH = Path(__file__).parent / "target" / "release" / "tools_rust_calculator"
 
 
 @tool

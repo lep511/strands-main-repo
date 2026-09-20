@@ -1,12 +1,7 @@
 """Test script: a Strands agent using the Rust financial calculator as a tool."""
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from strands import Agent
-from sandbox.rust_calculator.tool import rust_financial_calculator
+from tool import rust_financial_calculator
 
 
 def test_agent_with_rust_tool():
