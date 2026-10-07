@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 import os
@@ -7,9 +8,11 @@ from pymongo import MongoClient
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from rich.console import Console
+from rich.live import Live
 from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.table import Table
+from rich.text import Text
 from strands import Agent, tool
 from strands.models import BedrockModel
 
@@ -116,15 +119,18 @@ def improve_query(user_question: str) -> str:
 
 6. **Handle multi-part questions**: If the question contains multiple distinct information needs, output each as a separate search query, all in English."""
 
+    # Sonnet 5 no acepta parámetros de sampling: temperature devuelve 400.
     query_model = BedrockModel(
-        model_id="us.anthropic.claude-sonnet-4-6-v1",
-        temperature=0.0,
+        model_id="us.anthropic.claude-sonnet-5",
     )
 
     query_agent = Agent(
         model=query_model,
         system_prompt=system_prompt,
         tools=[],
+        # Su resultado se muestra en la tabla de abajo; sin esto Strands además
+        # lo imprime crudo.
+        callback_handler=None,
     )
 
     result = query_agent(
@@ -168,15 +174,67 @@ You help users find information from company documents (10-K filings, financial 
 
 
 model = BedrockModel(
-    model_id="us.anthropic.claude-opus-4-6-v1",
-    temperature=0.0,
+    model_id="us.anthropic.claude-opus-5",
 )
 
 agent = Agent(
     model=model,
     tools=[improve_query, vector_search],
     system_prompt=SYSTEM_PROMPT,
+    # El handler por defecto imprime la respuesta cruda mientras llega, lo que
+    # la duplicaba con el panel formateado. Acá el stream se consume a mano.
+    callback_handler=None,
 )
+
+# Líneas de respuesta visibles en la vista previa mientras se genera.
+STREAM_PREVIEW_LINES = 12
+
+
+async def stream_response(query: str) -> str:
+    """Consume el stream del agente y devuelve la respuesta completa.
+
+    La vista previa es transitoria (se borra al terminar), así que la respuesta
+    se muestra una sola vez: formateada, en el panel que imprime el llamador.
+    Las llamadas a tools se imprimen a medida que ocurren y quedan en pantalla.
+    """
+    answer: list[str] = []
+    reasoning: list[str] = []
+    result = None
+    tool_count = 0
+
+    def preview() -> Panel:
+        buffer = "".join(answer) or "".join(reasoning)
+        tail = buffer.splitlines()[-STREAM_PREVIEW_LINES:]
+        return Panel(
+            Text("\n".join(tail), style="dim"),
+            title="[dim]generando respuesta...[/]" if answer else "[dim]razonando...[/]",
+            border_style="dim",
+        )
+
+    with Live(preview(), console=console, transient=True, refresh_per_second=8) as live:
+        async for event in agent.stream_async(query):
+            tool_use = (
+                event.get("event", {})
+                .get("contentBlockStart", {})
+                .get("start", {})
+                .get("toolUse")
+            )
+            if tool_use:
+                tool_count += 1
+                console.print(f"\n[bold cyan]Tool #{tool_count}:[/] {tool_use['name']}")
+
+            if thought := event.get("reasoningText"):
+                reasoning.append(thought)
+                live.update(preview())
+
+            if data := event.get("data"):
+                answer.append(data)
+                live.update(preview())
+
+            if "result" in event:
+                result = event["result"]
+
+    return str(result) if result is not None else "".join(answer)
 
 
 if __name__ == "__main__":
@@ -194,9 +252,9 @@ if __name__ == "__main__":
     for query in queries:
         console.rule(style="blue")
         console.print(f"\n[bold yellow]Query:[/] {query}\n")
-        response = agent(query)
+        response = asyncio.run(stream_response(query))
         console.print(Panel(
-            Markdown(str(response)),
+            Markdown(response),
             title="[bold green]Respuesta[/]",
             border_style="green",
             padding=(1, 2),
