@@ -9,6 +9,7 @@ dependencies = [
     "strands-agents[gemini]>=1.38.0",
     "strands-agents-tools>=0.5.2",
     "pydantic>=2.12.5",
-    "mem0ai[nlp]>=2.0.1",
+    "mem0ai[nlp]>=2.2.1",
     "opensearch-py>=3.2.0",
+    "rich>=15.0",
 ]

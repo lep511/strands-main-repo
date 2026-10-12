@@ -4,11 +4,25 @@
 
 set -e
 
-REGION="us-east-1"
-HOST="r8wdwqn28on4qyruksn1.us-east-1.aoss.amazonaws.com"
-ENDPOINT="https://${HOST}"
+# Load configuration from .env (see .env.example)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/.env"
+  set +a
+fi
 
-echo "Deleting mem0 indices from ${HOST}..."
+REGION="${AWS_REGION:-us-east-1}"
+HOST="${OPENSEARCH_HOST}"
+COLLECTION_NAME="${OPENSEARCH_COLLECTION:-mem0}"
+
+if [ -z "$HOST" ]; then
+  echo "ERROR: OPENSEARCH_HOST is not set. Add it to .env (see .env.example)." >&2
+  exit 1
+fi
+
+echo "Deleting ${COLLECTION_NAME} indices from ${HOST}..."
 
 uv run python3 -c "
 import boto3
@@ -18,14 +32,16 @@ credentials = boto3.Session().get_credentials()
 auth = AWSV4SignerAuth(credentials, '${REGION}', 'aoss')
 
 client = OpenSearch(
-    hosts=[{'host': '${HOST}', 'port': 443}],
+    hosts=[{'host': '${HOST}', 'port': ${OPENSEARCH_PORT:-443}}],
     http_auth=auth,
     connection_class=RequestsHttpConnection,
     use_ssl=True,
     verify_certs=True,
 )
 
-for index in ['mem0', 'mem0migrations', 'mem0_entities']:
+collection = '${COLLECTION_NAME}'
+
+for index in [collection, collection + 'migrations', collection + '_entities']:
     try:
         client.indices.delete(index=index)
         print(f'  {index}: deleted')

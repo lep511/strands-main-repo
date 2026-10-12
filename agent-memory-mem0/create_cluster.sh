@@ -3,8 +3,17 @@
 
 set -e
 
-COLLECTION_NAME="mem0"
-REGION="us-east-1"
+# Load configuration from .env (see .env.example)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "${SCRIPT_DIR}/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/.env"
+  set +a
+fi
+
+COLLECTION_NAME="${OPENSEARCH_COLLECTION:-mem0}"
+REGION="${AWS_REGION:-us-east-1}"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ROLE_ARN=$(aws sts get-caller-identity --query Arn --output text)
 # Extract the role name from the ARN (e.g., arn:aws:sts::123456:assumed-role/MyRole/session -> MyRole)
@@ -96,6 +105,6 @@ echo "Collection ID: $COLLECTION_ID"
 echo "Endpoint:      $ENDPOINT"
 echo "Host:          $HOST"
 echo ""
-echo "Update open_search_mem0.py with:"
-echo "  \"host\": \"${HOST}\""
+echo "Update .env with:"
+echo "  OPENSEARCH_HOST=${HOST}"
 echo "=========================================="

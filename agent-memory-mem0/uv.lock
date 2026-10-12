@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -15,16 +15,18 @@ dependencies = [
     { name = "opensearch-py" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "rich" },
     { name = "strands-agents", extra = ["gemini"] },
     { name = "strands-agents-tools" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "mem0ai", extras = ["nlp"], specifier = ">=2.0.1" },
+    { name = "mem0ai", extras = ["nlp"], specifier = ">=2.2.1" },
     { name = "opensearch-py", specifier = ">=3.2.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "rich", specifier = ">=15.0" },
     { name = "strands-agents", extras = ["gemini"], specifier = ">=1.38.0" },
     { name = "strands-agents-tools", specifier = ">=0.5.2" },
 ]
@@ -1023,9 +1025,10 @@ wheels = [
 
 [[package]]
 name = "mem0ai"
-version = "2.0.1"
+version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "httpx" },
     { name = "openai" },
     { name = "posthog" },
     { name = "protobuf" },
@@ -1034,9 +1037,9 @@ dependencies = [
     { name = "qdrant-client" },
     { name = "sqlalchemy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/03/3dc535b98310912e4f10083acdbbca2c5e2dfccb3921230a460464f9f4d0/mem0ai-2.0.1.tar.gz", hash = "sha256:070dbc3f1f332c8908379b42a81ab3a96ab169f2f9fa537e6ac719df02478f9c", size = 211820, upload-time = "2026-04-25T17:39:06.744Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/08/28/151a796111f90017ec09b052ac09a55e7b3ae5e976542f38f35c54270f8e/mem0ai-2.2.1.tar.gz", hash = "sha256:099a7d58368908d0a05a633c5da3920f607a57db00d4f168800de05966b2a4a8", size = 256091, upload-time = "2026-09-25T17:36:09.406Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/96/e6153262f1464f4d412208732fea31496d9983ade155dd2c5c5492f8f8a4/mem0ai-2.0.1-py3-none-any.whl", hash = "sha256:63da5f50ad0c2514e27c2f380ef03f2ceea47c97873096ddfd997785b58043ec", size = 299461, upload-time = "2026-04-25T17:39:04.143Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/48/7051dd9009232802c11a4c4d9e58ea32968c8e076ea79e2e8a6d243e49b3/mem0ai-2.2.1-py3-none-any.whl", hash = "sha256:fe91bb91ac8926231993a4aa58df00a60c6c74c709e6a338fe399500776eef4d", size = 351907, upload-time = "2026-09-25T17:36:07.48Z" },
 ]
 
 [package.optional-dependencies]
@@ -1841,15 +1844,15 @@ wheels = [
 
 [[package]]
 name = "rich"
-version = "14.3.4"
+version = "15.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "markdown-it-py" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e9/67/cae617f1351490c25a4b8ac3b8b63a4dda609295d8222bad12242dfdc629/rich-14.3.4.tar.gz", hash = "sha256:817e02727f2b25b40ef56f5aa2217f400c8489f79ca8f46ea2b70dd5e14558a9", size = 230524, upload-time = "2026-04-11T02:57:45.419Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c0/8f/0722ca900cc807c13a6a0c696dacf35430f72e0ec571c4275d2371fca3e9/rich-15.0.0.tar.gz", hash = "sha256:edd07a4824c6b40189fb7ac9bc4c52536e9780fbbfbddf6f1e2502c31b068c36", size = 230680, upload-time = "2026-04-12T08:24:00.75Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b3/76/6d163cfac87b632216f71879e6b2cf17163f773ff59c00b5ff4900a80fa3/rich-14.3.4-py3-none-any.whl", hash = "sha256:07e7adb4690f68864777b1450859253bed81a99a31ac321ac1817b2313558952", size = 310480, upload-time = "2026-04-11T02:57:47.484Z" },
+    { url = "https://files.pythonhosted.org/packages/82/3b/64d4899d73f91ba49a8c18a8ff3f0ea8f1c1d75481760df8c68ef5235bf5/rich-15.0.0-py3-none-any.whl", hash = "sha256:33bd4ef74232fb73fe9279a257718407f169c09b78a87ad3d296f548e27de0bb", size = 310654, upload-time = "2026-04-12T08:24:02.83Z" },
 ]
 
 [[package]]
@@ -2162,12 +2165,13 @@ wheels = [
 
 [[package]]
 name = "strands-agents"
-version = "1.38.0"
+version = "1.59.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
     { name = "botocore" },
     { name = "docstring-parser" },
+    { name = "httpx" },
     { name = "jsonschema" },
     { name = "mcp" },
     { name = "opentelemetry-api" },
@@ -2178,9 +2182,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/11/89/3e722f4b5bd913531bc32a23bf88aaa77a434774f294bba5bfa88690ec46/strands_agents-1.38.0.tar.gz", hash = "sha256:02a68ec321ad457f9137dfd6a99cf72cf0e86081fee35de85fbe29b9ac0af2b2", size = 858950, upload-time = "2026-04-30T16:57:43.244Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/40/bc/93aaaf27f135481cd22eb41430f7e919bde2771439c853f1e7fbf8b7c124/strands_agents-1.59.0.tar.gz", hash = "sha256:617eb2c925ab94542f03902435577917c106e46665a7196fa7e13790c20b2f55", size = 1752743, upload-time = "2026-10-08T13:40:25.282Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/06/de8d8ab14a2e92dcb0fa82db0a4cb102418a1eda139412bbe5b5725e28df/strands_agents-1.38.0-py3-none-any.whl", hash = "sha256:9dc3de17e25d70e367d37f9151f2a4c7b3ac8fc9f6237e9e1f34d00bfbfd001b", size = 422354, upload-time = "2026-04-30T16:57:41.094Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/15/4d21704a1be7c628f5193f76070f42720f1dad2d80271e31c1f6af33bf8a/strands_agents-1.59.0-py3-none-any.whl", hash = "sha256:d1720c6cf3220bd632b3a1cb27e3907f1c5424d5bba8be830ee3e32b6cef5170", size = 880205, upload-time = "2026-10-08T13:40:22.858Z" },
 ]
 
 [package.optional-dependencies]
@@ -2190,7 +2194,7 @@ gemini = [
 
 [[package]]
 name = "strands-agents-tools"
-version = "0.5.2"
+version = "0.8.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2211,9 +2215,9 @@ dependencies = [
     { name = "tzdata", marker = "sys_platform == 'win32'" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/63/32/710a49ffd32b0a232ec1731620ee6105c045e9a77ecee1f3ecaa1a80a6cd/strands_agents_tools-0.5.2.tar.gz", hash = "sha256:96763c8ae75933c5dd327cca87561f573aed720c9c0f3d17fd20835910d11381", size = 483164, upload-time = "2026-04-30T17:08:13.151Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/90/b129b3011eee02d6a00c7abbae8bd1072aab91f5c628c1e108bbdc98f6cd/strands_agents_tools-0.8.9.tar.gz", hash = "sha256:a9020d13c6ad24575ad9985e86ace0879c9e9279344399262c35cb9a7395528a", size = 543643, upload-time = "2026-09-15T22:36:27.679Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/ef/fe73b6d25d095784d2e1f6f33419265e796143100fb2f32a6e86f8ae68af/strands_agents_tools-0.5.2-py3-none-any.whl", hash = "sha256:8f85e4cb28d9411e62e1f159aa7e300d3a0f4b1d2b878a7cdfd5d746d9333343", size = 316178, upload-time = "2026-04-30T17:08:11.416Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/38/fe6f646ac8c3665da7131586a33a7ad96a9347ca277a01025f755e3c1443/strands_agents_tools-0.8.9-py3-none-any.whl", hash = "sha256:858a8e17c6f807541524d10fa108b2bc7776c23666c7ecda966a327a752a9372", size = 343671, upload-time = "2026-09-15T22:36:25.811Z" },
 ]
 
 [[package]]
