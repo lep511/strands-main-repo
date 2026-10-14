@@ -1,0 +1,25 @@
+[project]
+name = "notebooks-samples"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "lep511", email = "estebanpbuday@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.43.112",
+    "httpx>=0.28.1",
+    "ipykernel>=7.4.0",
+    "mcp>=2.0,<2.2",
+    "python-dotenv>=1.2.4",
+    "strands-agents>=1.60.0",
+    "strands-agents-tools>=0.8.9",
+]
+
+[project.scripts]
+notebooks-samples = "notebooks_samples:main"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
