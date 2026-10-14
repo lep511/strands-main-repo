@@ -1,0 +1,8 @@
+# Built by setup.sh.
+box-core/
+box-src/
+runtime/
+tmp/
+# Box state: the box's private records and binaries.
+state/
+box-example/

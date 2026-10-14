@@ -1,0 +1,4 @@
+// Transfers of a positive amount are permitted unless one of the limits forbids them.
+@id("allow_transfers")
+permit (principal, action == AgentCore::Action::"Transfer", resource)
+when { context.input.amount > 0 };

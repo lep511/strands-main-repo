@@ -1,0 +1,6 @@
+sku,item,quantity,reorder_level
+H-100,hammer,14,10
+S-220,screwdriver set,3,8
+W-310,wrench,22,10
+T-405,tape measure,6,6
+P-512,pliers,0,5

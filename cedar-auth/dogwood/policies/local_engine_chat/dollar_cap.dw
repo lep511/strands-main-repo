@@ -1,0 +1,17 @@
+// No more than $5,000 per hour, counting this transfer and the ones not refused.
+//
+// Counts requests the same way distinct_recipients_limit.dw does. Summing every
+// request (../dollar_cap.dw) lets one refused $40,000 attempt use up the hour's
+// budget, and a temporal block has no arithmetic, so "settled + this amount"
+// cannot be written.
+@id("dollar_cap")
+forbid (principal, action == AgentCore::Action::"Transfer", resource)
+when temporal {
+    exists (total: Long). (
+        (sum a for (a: Long), (c: String). where (
+            formerly within 1h AgentCore::Action::"Transfer"::request{ input.amount: a, input.callId: c }
+            && !formerly within 1h AgentCore::Action::"Transfer"::error{ input.callId: c }
+        )) == total
+        && total > 5000
+    )
+};

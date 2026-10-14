@@ -1,0 +1,21 @@
+// A sale of at most 1,000 shares needs a human approval for the same stock and
+// amount within the last hour, and each approval covers one sale.
+//
+// ../small_and_approved.dw with the approval made single-use: `!A since B` holds
+// while no matching sale has completed after the latest matching approval.
+@id("sell_with_single_use_approval")
+permit (principal, action == AgentCore::Action::"SellShares", resource)
+when {
+    context.input.shares <= 1000
+    && temporal {
+        !AgentCore::Action::"SellShares"::response{
+            input.stock:  context.input.stock,
+            input.shares: context.input.shares
+        }
+        since within 1h AgentCore::Action::"ApproveSale"::response{
+            input.stock:     context.input.stock,
+            input.shares:    context.input.shares,
+            output.approved: true
+        }
+    }
+};

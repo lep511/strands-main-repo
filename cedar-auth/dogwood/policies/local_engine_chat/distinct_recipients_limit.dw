@@ -1,0 +1,22 @@
+// No more than three distinct recipients per hour, counting this transfer and
+// the ones not refused.
+//
+// A transfer request counts unless the same call (input.callId, added by the
+// harness) ended in an `error`: refused by a policy, or the tool failed. That
+// keeps the current request, which has no outcome yet, and drops refused
+// attempts, so a refused fourth recipient does not block the other three, as it
+// does in ../distinct_recipients_limit.dw. The `!formerly` is a guarded
+// negation: `c` is bound by the request predicate before it.
+@id("distinct_recipients_limit")
+forbid (principal, action == AgentCore::Action::"Transfer", resource)
+when temporal {
+    exists (n: Long). (
+        (count for (u: String). where (
+            exists (c: String). (
+                formerly within 1h AgentCore::Action::"Transfer"::request{ input.user: u, input.callId: c }
+                && !formerly within 1h AgentCore::Action::"Transfer"::error{ input.callId: c }
+            )
+        )) == n
+        && n > 3
+    )
+};

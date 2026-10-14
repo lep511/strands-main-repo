@@ -1,0 +1,60 @@
+# A Strands Agents SDK agent in a box, on Linux (Amazon Linux 2023, arm64).
+# To author or change the policy next to this file, point your coding agent at the skill:
+#   https://raw.githubusercontent.com/strands-agents/box/main/.agents/skills/authoring-box-policy/SKILL.md
+
+# The box's name, and where it keeps its own state. Box creates box_dir itself, mode 0700, so don't
+# make it beforehand. The agent can't reach box_dir.
+name = "strands-sdk"
+box_dir = "/home/ssm-user/strands-main-repo/strands-box/state"
+# The policy file, next to this one.
+policy = "policy.dw"
+
+[agent]
+# The program the box starts: the host's Python 3.13, by its real path, running agent.py. Box
+# refuses a symbolic link, so neither /usr/bin/python3 (a link to 3.9) nor a venv's bin/python3
+# works here. -B stops Python writing bytecode, which the agent has no grant to write; setup.sh
+# compiled it ahead of time. The task comes from the command line, after `--`.
+command = [
+  "/usr/bin/python3.13",
+  "-B",
+  "/home/ssm-user/strands-main-repo/strands-box/agent.py",
+]
+# The directory the agent starts in. This alone grants nothing.
+workspace = "/home/ssm-user/strands-main-repo/strands-box/workspace"
+
+# The agent gets these variables, plus the ones the box adds. Nothing comes from your shell. The
+# SDK reads the region and skips the EC2 metadata service; agent.py reads the model and the SDK's
+# directory.
+[agent.env]
+AWS_REGION = "us-west-2"
+AWS_EC2_METADATA_DISABLED = "true"
+MODEL_ID = "global.anthropic.claude-opus-5-5"
+STRANDS_LIB_DIR = "/home/ssm-user/strands-main-repo/strands-box/runtime/lib"
+PATH = "/usr/bin:/bin"
+TMPDIR = "/home/ssm-user/strands-main-repo/strands-box/tmp"
+
+# What the agent's own process can touch without asking the policy.
+[agent.filesystem]
+# Python loads libpython, libc, and its standard library (/usr/lib64/python3.13) from /usr/lib64:
+# the Linux agent minimum names no loader directory, and /lib64 is a link Box refuses. Then it
+# imports the SDK from runtime/lib.
+read = [
+  "/usr/lib64",
+  "~/strands-main-repo/strands-box/runtime/lib",
+]
+# The dynamic loader reads its cache, and Python runs agent.py.
+read_file = ["/etc/ld.so.cache", "~/strands-main-repo/strands-box/agent.py"]
+# The SDK's compiled extensions, such as pydantic-core's .so: a `read` grant can't map code to
+# run, so an import of one fails with "failed to map segment" without this.
+exec = ["~/strands-main-repo/strands-box/runtime/lib"]
+# Python's temporary files.
+write = ["~/strands-main-repo/strands-box/tmp"]
+# Nothing grants the project: this process never opens a project file itself. Every tool goes
+# through the box's shell or Monty, so the policy decides each one. (Linux has no `list` grant,
+# and a `read` grant here would let this process open .env without asking the policy.)
+
+# The box adds your Bedrock API key to each request to Bedrock. The agent gets a stand-in value.
+# "model" is a name you choose.
+[egress.model]
+destinations = ["bedrock-runtime.us-west-2.amazonaws.com"]
+secret.ref = "env://AWS_BEARER_TOKEN_BEDROCK"

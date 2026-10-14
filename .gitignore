@@ -4,6 +4,7 @@ claude-code-spc/
 __pycache__/
 *.py[codz]
 *$py.class
+answer.txt
 
 # C extensions
 *.so

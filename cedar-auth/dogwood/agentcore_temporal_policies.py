@@ -26,6 +26,8 @@ Prerequisites:
 Reference:
   https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/policy-temporal.html
   https://github.com/dogwood-policy/dogwood
+  https://aws.amazon.com/es/blogs/machine-learning/authoring-dogwood-policies-from-natural-language-in-amazon-bedrock-agentcore/
+  https://aws.amazon.com/es/blogs/opensource/introducing-the-dogwood-local-engine-temporal-governance-for-agent-actions/
 """
 
 from __future__ import annotations

@@ -111,7 +111,7 @@ Cedar and Dogwood solve different layers of the authorization problem for AI age
 
 **Cedar** evaluates each authorization request in isolation. It can check who is making the request, what tool they're calling, and what arguments they're passing — but it cannot see what happened before. This makes it ideal for role-based access control, input validation, and environment gating.
 
-**Dogwood** extends Cedar with temporal conditions that look back over an agent's recent events. It adds operators like `formerly` (did this happen before?), `count_within` (how many times?), `sum_within` (how much total?), and `count_distinct_within` (how many different values?). These let you express policies that depend on sequences of actions — prerequisites, rate limits, cumulative caps, and ordering constraints.
+**Dogwood** extends Cedar with temporal conditions that look back over an agent's recent events. It adds operators like `formerly` (did this happen before?), `since` (has this not happened since that?), `count_within` (how many times?), `sum_within` (how much total?), and `count_distinct_within` (how many different values?). These let you express policies that depend on sequences of actions — prerequisites, rate limits, cumulative caps, and ordering constraints.
 
 Because Dogwood is a superset of Cedar, existing Cedar policies work without modification. You only add `when temporal { ... }` clauses when you need history-dependent checks.
 
@@ -172,7 +172,78 @@ A real Strands agent that layers Dogwood-style temporal checks on top of Cedar p
 uv run python dogwood/trading_agent_with_strands.py
 ```
 
-> **Note:** Dogwood's Rust-based reference interpreter is not yet available as a Python package. These examples implement the temporal evaluation logic in Python while using real Cedar policies via `cedarpy` for point-in-time checks.
+> **Note:** Dogwood has no official Python package. These two examples implement the temporal evaluation logic in Python while using real Cedar policies via `cedarpy` for point-in-time checks. For verdicts from the real Dogwood engine, see the Local Engine chat below.
+
+### Interactive Chat on the Dogwood Local Engine (`dogwood/local_engine_chat.py`)
+
+A terminal chat (Rich) with a Strands trading-desk agent where every tool call is decided by the real [Dogwood Local Engine](https://github.com/dogwood-policy/dogwood-local-engine), not a Python simulation. The engine runs as `dogwood-server`, a local daemon that keeps the event history durably on disk, so temporal limits survive a restart of the chat. The chat talks to it over two Unix sockets with length-prefixed JSON, so no Rust bindings are needed:
+
+| Socket | Path | Used for |
+| --- | --- | --- |
+| Data plane | `<dir>/run/dogwood.sock` | Submit events, receive verdicts |
+| Control plane | `<dir>/control.sock` | Install policies, status, reset |
+
+**Running it** needs a Rust toolchain (1.85 or newer) for the first build, and Bedrock access for Strands' default model:
+
+```bash
+# Terminal 1: build dogwood-server the first time, then run it in the foreground
+dogwood/run_dogwood_server.sh
+
+# Terminal 2
+uv run python dogwood/local_engine_chat.py
+```
+
+If Rust is missing or too old, `run_dogwood_server.sh` explains how to install it with [rustup](https://rustup.rs). It clones `dogwood-local-engine` into `~/.cache/dogwood-local-engine`, serves the state directory `~/.dogwood-chat` (the chat's default), and refuses to start a second server on the same directory. Options: `--dir DIR`, `--rebuild` (pull and rebuild), and `DOGWOOD_SERVER_BIN=/path/to/dogwood-server` to reuse a binary you already built.
+
+Chat options: `--user NAME` (the principal, default `alice`), `--dir DIR` (the server's state directory), `--policies DIR` (where the `.dw` files are), `--reinstall` (install the policies even if the store already runs them).
+
+| Command | What it does |
+| --- | --- |
+| `/policies` | The policies and the natural-language rule each one encodes |
+| `/history` | Every event the harness submitted, with its verdict and the policy that decided it |
+| `/status` | What the engine has installed and how many events it has recorded |
+| `/user <name>` | Act as another principal; each principal has its own history |
+| `/reset` | Clear the temporal history of every policy (asks first) |
+| `/new` | Start a new conversation; the engine keeps its history |
+| `/help`, `/exit` | Help, and quit (Ctrl-D and Ctrl-C also quit) |
+
+The input line supports arrow keys, line editing, and the up-arrow history of the current session.
+
+**How a tool call is decided.** `DogwoodHarness`, a Strands `InterventionHandler`, plays the harness role from the [Local Engine announcement](https://aws.amazon.com/es/blogs/opensource/introducing-the-dogwood-local-engine-temporal-governance-for-agent-actions/):
+
+1. Before the tool runs, it submits a `request` event and runs the tool only if the verdict is ALLOW.
+2. Afterwards it submits a `response` event with the tool's output, or an `error` event if the call was denied or failed. This is the same bookkeeping AgentCore Policy does at the Gateway.
+3. Every event of a call carries the Strands `toolUseId` as `input.callId`, so a policy can match a request with its outcome. The tool never sees it.
+4. Tools run one at a time (`SequentialToolExecutor`), so a sale never starts before its approval is recorded.
+
+`ApproveSale` asks you, the human operator, to approve the sale in the terminal, so the agent cannot approve its own sales. Each line printed as `dogwood ALLOW …` or `dogwood DENY …` is a verdict from the engine. If an answer appears without such a line, the agent never called the tool.
+
+The agent is **not** told the rules. If it knew them, it would refuse an obvious violation itself and the engine would never decide it. When the engine denies a call, the harness passes the agent the natural-language rule of the policy that decided it, so the agent can explain the denial.
+
+**Policies.** The policy set lives in `dogwood/policies/local_engine_chat/`, one `.dw` file per policy. The chat loads every `.dw` file in that directory:
+
+| `@id` | Effect | Rule | Dogwood feature |
+| --- | --- | --- | --- |
+| `allow_stock_info` | permit | Anyone may look up market data | Plain Cedar |
+| `allow_approval_requests` | permit | Anyone may ask a human to approve a sale | Plain Cedar |
+| `sell_with_single_use_approval` | permit | At most 1,000 shares, with a human approval for the same stock and amount within 1h; each approval covers one sale | Cedar + `!A since B` |
+| `allow_transfers` | permit | Transfers of a positive amount, unless a limit forbids them | Plain Cedar |
+| `rate_limit_transfers` | forbid | No more than 5 transfer attempts per hour, refused ones included | `count_within` |
+| `distinct_recipients_limit` | forbid | No more than 3 distinct recipients per hour, among transfers not refused | `count` + guarded negation |
+| `dollar_cap` | forbid | No more than $5,000 per hour, among transfers not refused | `sum` + guarded negation |
+
+How the policy files work:
+
+- **Natural-language rule:** each file opens with its rule as a `//` comment, kept next to the policy as the [natural-language authoring post](https://aws.amazon.com/es/blogs/machine-learning/authoring-dogwood-policies-from-natural-language-in-amazon-bedrock-agentcore/) recommends. The first paragraph is the rule that the agent and `/policies` see. Text after a blank `//` line is notes for whoever edits the policy.
+- **Refused transfers don't count:** the two money limits count a transfer request unless the same call ended in an `error`. So a refused $40,000 attempt does not use up the hour's budget. Temporal blocks have no arithmetic, so "settled + this amount" cannot be written directly. Instead, the sum of requests that were not refused includes the current one.
+- **Installing:** the chat installs the set when the store has no policies, or a different revision of them. Every installed policy is stamped with `@revision("<hash>")`, a hash of the `.dw` files and the action schema. Editing any file, even a comment, reinstalls the set on the next start, and that resets the temporal history.
+- **Why a separate directory:** these files are their own set, not `dogwood/policies/*.dw`. Some of those undo these rules when loaded together: `approve_before_sell.dw` permits a sale on any earlier approval, and `anti_spike.dw` forbids the first transfer of every hour.
+
+To change the hourly transfer limit, for example, edit both the number (`total > 5000`) and the rule comment in `dollar_cap.dw`.
+
+> **Security note:** the chat installs policies over the control socket as a demo convenience. `dogwood-server` is only tamper-resistant when it runs as a different, more privileged user than the agent, and an operator installs policy with `dogwood-server policy install`. Without control-socket access the chat still works, but it cannot install, reset, or name the policies behind a verdict.
+
+> **Editing `.dw` files in VS Code:** with the [Cedar extension](https://marketplace.visualstudio.com/items?itemName=cedar-policy.vscode-cedar), add `"files.associations": { "*.dw": "cedar" }` to your settings for syntax highlighting. The extension validates files with the Cedar parser, so `when temporal { … }` blocks show syntax errors even though they are valid Dogwood.
 
 ### AgentCore Integration (`dogwood/agentcore_temporal_policies.py`)
 
@@ -203,6 +274,7 @@ cedar-auth/
 │   └── database_access.cedar       # File-based Cedar policy
 ├── dogwood/
 │   ├── policies/                    # Dogwood temporal policies (.dw)
+│   │   ├── local_engine_chat/       # Policy set of the Local Engine chat, one .dw per policy
 │   │   ├── approve_before_sell.dw
 │   │   ├── small_and_approved.dw
 │   │   ├── rate_limit_transfers.dw
@@ -212,6 +284,8 @@ cedar-auth/
 │   ├── traces/                      # Event traces for replay
 │   ├── stock_trading_agent.py       # Temporal policy simulator
 │   ├── trading_agent_with_strands.py # Strands agent + temporal auth
+│   ├── local_engine_chat.py         # Interactive chat on the Dogwood Local Engine
+│   ├── run_dogwood_server.sh        # Builds (once) and runs dogwood-server
 │   └── agentcore_temporal_policies.py # AgentCore Policy integration
 ├── database_access.py               # Role-based DB access control
 ├── environment_gating.py            # Block tools by environment

@@ -1,0 +1,9 @@
+// No more than five transfer attempts per hour, refused ones included.
+//
+// Same rule as ../rate_limit_transfers.dw. A limit on attempts: the count
+// includes the current request and refused ones.
+@id("rate_limit_transfers")
+forbid (principal, action == AgentCore::Action::"Transfer", resource)
+when temporal {
+    count_within(1h, AgentCore::Action::"Transfer"::request{ input.amount: _ }) > 5
+};

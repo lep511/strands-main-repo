@@ -1,0 +1,6 @@
+// Anyone may ask a human to approve a sale.
+//
+// Must stay permitted: a denied ApproveSale is recorded as an `error` event, and
+// sell_with_single_use_approval.dw only accepts approvals recorded as a `response`.
+@id("allow_approval_requests")
+permit (principal, action == AgentCore::Action::"ApproveSale", resource);
