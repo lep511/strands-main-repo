@@ -1,9 +1,10 @@
 # notebooks-samples
 
 Notebooks de agentes con [Strands Agents](https://strandsagents.com) y Amazon
-Bedrock: uno con servidores MCP locales y tres sobre MongoDB Atlas **sin
-embeddings**, cada uno con una forma distinta de recuperar datos y con Brave
-Search para lo que la base no tiene. El proyecto se gestiona con
+Bedrock: uno con servidores MCP locales y cuatro sobre MongoDB Atlas **sin
+embeddings**, cada uno con una forma distinta de recuperar datos: tres con
+Brave Search para lo que la base no tiene y uno con autorización Cedar por
+tool. El proyecto se gestiona con
 [uv](https://docs.astral.sh/uv/): las dependencias viven en `pyproject.toml` /
 `uv.lock` y el entorno se crea en `.venv`.
 
@@ -13,10 +14,13 @@ Search para lo que la base no tiene. El proyecto se gestiona con
 | [`mongodb_text_search.ipynb`](#mongodb_text_searchipynb--rag-sin-embeddings) | PDF 10-K → `rag_db.text_search` | Atlas Search (`$search`, BM25) | API directa con `httpx` |
 | [`mongodb_movies_brave.ipynb`](#mongodb_movies_braveipynb--catálogo-de-películas--brave) | `sample_mflix.movies` | `find` + índice de texto nativo (`$text`) | API directa con `httpx` |
 | [`mongodb_analytics_brave.ipynb`](#mongodb_analytics_braveipynb--agregaciones-sobre-sample_analytics) | `sample_analytics` | pipelines de agregación (`$lookup`, `$group`) | API directa con `httpx` |
+| [`mongodb_analytics_cedar.ipynb`](#mongodb_analytics_cedaripynb--autorización-cedar-por-tool) | `sample_analytics` | las mismas agregaciones, cada llamada autorizada con Cedar | — |
 
-Los tres notebooks `mongodb_*` siguen la misma regla: **la base de datos decide
+Los notebooks `mongodb_*_brave` siguen la misma regla: **la base de datos decide
 qué existe**. El agente solo busca en la web para ampliar algo que ya encontró
-en MongoDB, y si no está, lo dice en vez de buscarlo.
+en MongoDB, y si no está, lo dice en vez de buscarlo. El notebook `_cedar`
+cambia la web por autorización: quién puede llamar a qué tool, y con qué
+argumentos.
 
 ## Requisitos
 
@@ -25,7 +29,7 @@ en MongoDB, y si no está, lo dice en vez de buscarlo.
 | Python | 3.13 (fijado en `.python-version`; `uv` lo descarga si falta) |
 | uv | 0.13 o superior |
 | AWS | credenciales con acceso a Amazon Bedrock en la región que uses |
-| Brave Search | una API key de <https://api-dashboard.search.brave.com> (el plan gratuito basta: los notebooks espacian las llamadas a 1/s) |
+| Brave Search | una API key de <https://api-dashboard.search.brave.com> (el plan gratuito basta: los notebooks espacian las llamadas a 1/s). No la necesita `mongodb_analytics_cedar.ipynb` |
 | Node.js | solo para `search_brave.ipynb`, cuyo servidor MCP de Brave se ejecuta vía `npx` |
 | MongoDB Atlas | solo para los notebooks `mongodb_*`: un cluster (el M0 gratuito sirve) con el **Sample Dataset** cargado (*Load Sample Dataset* en la consola de Atlas), que trae `sample_mflix` y `sample_analytics` |
 
@@ -44,7 +48,7 @@ claves (los notebooks lo leen con `python-dotenv`; `.env` está en el
 `.gitignore`):
 
 ```bash
-BRAVE_API_KEY=...        # obligatorio para todos los notebooks
+BRAVE_API_KEY=...        # obligatorio salvo para mongodb_analytics_cedar.ipynb
 MONGODB_CONNECTION=...   # obligatorio para los notebooks mongodb_* (cluster Atlas)
 AWS_REGION=us-west-2     # opcional, es el valor por defecto
 ```
@@ -69,7 +73,7 @@ Qué hace cada parte:
 | `uv run` | ejecuta el comando con el `python` de `.venv`, así que el kernel que se registra es el del proyecto (no hace falta `source .venv/bin/activate`) |
 | `python -m ipykernel install` | el instalador de kernelspecs que trae `ipykernel`, ya incluido como dependencia |
 | `--user` | lo instala en tu usuario (`~/.local/share/jupyter/kernels/`), sin `sudo` y sin tocar el sistema |
-| `--name mi-proyecto` | identificador interno del kernel. Es el que los notebooks guardan en sus metadatos, así que **conviene no cambiarlo**: los cuatro notebooks ya apuntan a `mi-proyecto` y se abren con el kernel correcto sin seleccionarlo a mano |
+| `--name mi-proyecto` | identificador interno del kernel. Es el que los notebooks guardan en sus metadatos, así que **conviene no cambiarlo**: los cinco notebooks ya apuntan a `mi-proyecto` y se abren con el kernel correcto sin seleccionarlo a mano |
 | `--display-name "Python (mi-proyecto)"` | el nombre visible en el selector de kernels de Jupyter o VS Code |
 
 Comprueba que quedó registrado:
@@ -188,6 +192,32 @@ guardados como strings (de ahí el `$toDouble`), y no hay índice en
 `account_id`, así que el notebook lo crea en `accounts` y `transactions` para
 que los `$lookup` no escaneen la colección.
 
+## `mongodb_analytics_cedar.ipynb` — autorización Cedar por tool
+
+El mismo agente analista sobre `sample_analytics`, sin Brave y con cada llamada
+a tool autorizada con [Cedar](https://cedarpolicy.com/) antes de ejecutarse,
+siguiendo los ejemplos de [`../cedar-auth/`](../cedar-auth/). Usa la
+intervención `CedarAuthorization` de Strands (extra `strands-agents[cedar]`,
+ya en `pyproject.toml`): cada tool es una `Action`, el usuario viene de
+`invocation_state["user_id"]` y los argumentos de la tool van en
+`context.input`, así que una política puede decidir por *quién* llama y por
+*qué* pide.
+
+Las políticas están en [`policies/`](policies/):
+
+| Archivo | Contenido |
+|---|---|
+| `analytics_access.cedar` | las reglas: un `permit` por rol (manager todo; advisor consultas y solo las carteras de su libro; analyst solo agregados) y un `forbid` que limita a tres carteras por ejecución, también para managers |
+| `analytics.cedarschema` | los tipos: las tres acciones con la forma de su `context.input`, y las entidades `User`, `Role` y `Resource`. Con esquema, Cedar valida las políticas al cargarlas y cada request al evaluarla |
+| `analytics_entities.json` | los datos: usuarios, sus roles (como padres en la jerarquía de entidades) y el libro de clientes del asesor |
+
+Los roles viven en las entidades, no en el prompt, así que el modelo no puede
+"convencer" al agente de que es manager. Las denegaciones llegan al modelo como
+resultado de la tool y el prompt le pide reportarlas sin buscar otra vía. El
+notebook incluye una celda que evalúa requests con `cedarpy` directamente, sin
+modelo, para ver qué política decide cada caso. Solo necesita
+`MONGODB_CONNECTION`.
+
 ## Modelo
 
 `search_brave.ipynb` usa Amazon Bedrock con `us.anthropic.claude-sonnet-5`;
@@ -222,6 +252,13 @@ agregación que supera 32 MB en memoria. O bien se evita (como hace
 `mongodb_analytics_brave.ipynb` con el acumulador `$top` en vez de `$sort` +
 `$last`), o se permite escribir a disco con `allowDiskUse=True` en
 `collection.aggregate(...)`.
+
+**`Cedar evaluation failed: failed to parse schema from request`** — en
+`mongodb_analytics_cedar.ipynb`, el modelo envió un argumento con valor `null`
+y Cedar no tiene ese tipo, así que la request no valida contra el esquema y el
+handler deniega la llamada (*fail-closed*). Es el comportamiento esperado; si se
+repite, quita el esquema del handler o filtra los `None` del `tool_input` en una
+subclase de `CedarAuthorization` antes de evaluar.
 
 **Brave devuelve 429** — el plan gratuito permite una petición por segundo. Los
 notebooks `mongodb_*` espacian las llamadas con un `Lock` porque Strands ejecuta

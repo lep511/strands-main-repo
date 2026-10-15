@@ -1,0 +1,58 @@
+// Schema for mongodb_analytics_cedar.ipynb.
+//
+// No namespace: Strands' CedarAuthorization builds requests as
+// User::"<id>" / Action::"<tool name>" / Resource::"agent", and puts the
+// tool arguments in context.input and the session data in context.session.
+
+// A user may belong to roles. `book` is the list of customers an advisor
+// is allowed to open; only advisors have it.
+entity User in [Role] = {
+  book?: Set<String>
+};
+
+entity Role;
+
+// The handler always authorizes against the fixed resource Resource::"agent".
+entity Resource;
+
+// What the handler puts in context.session on every request.
+type Session = {
+  hour_utc: Long,
+  call_count: Long
+};
+
+// One input type per tool, mirroring the tool's arguments. Optional
+// arguments are optional here too: the model only sends the ones it fills.
+type FindCustomersInput = {
+  name?: String,
+  tier?: String,
+  product?: String,
+  limit?: Long
+};
+
+type CustomerPortfolioInput = {
+  name: String
+};
+
+type SymbolActivityInput = {
+  symbol?: String,
+  limit?: Long
+};
+
+action "find_customers" appliesTo {
+  principal: [User],
+  resource: [Resource],
+  context: { input: FindCustomersInput, session: Session }
+};
+
+action "customer_portfolio" appliesTo {
+  principal: [User],
+  resource: [Resource],
+  context: { input: CustomerPortfolioInput, session: Session }
+};
+
+action "symbol_activity" appliesTo {
+  principal: [User],
+  resource: [Resource],
+  context: { input: SymbolActivityInput, session: Session }
+};

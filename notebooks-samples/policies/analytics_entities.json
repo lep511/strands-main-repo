@@ -1,0 +1,37 @@
+[
+  {
+    "uid": {"type": "Role", "id": "manager"},
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": {"type": "Role", "id": "advisor"},
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": {"type": "Role", "id": "analyst"},
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": {"type": "User", "id": "alice"},
+    "attrs": {},
+    "parents": [{"type": "Role", "id": "manager"}]
+  },
+  {
+    "uid": {"type": "User", "id": "bob"},
+    "attrs": {"book": ["Bryce Bowen", "Tonya Vega"]},
+    "parents": [{"type": "Role", "id": "advisor"}]
+  },
+  {
+    "uid": {"type": "User", "id": "carol"},
+    "attrs": {},
+    "parents": [{"type": "Role", "id": "analyst"}]
+  },
+  {
+    "uid": {"type": "Resource", "id": "agent"},
+    "attrs": {},
+    "parents": []
+  }
+]
