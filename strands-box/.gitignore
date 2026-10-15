@@ -5,4 +5,5 @@ runtime/
 tmp/
 # Box state: the box's private records and binaries.
 state/
-box-example/
+# What the agent writes.
+workspace/out/

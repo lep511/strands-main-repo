@@ -1,14 +1,27 @@
 #!/bin/sh
-# Builds Box from source into box-core/, installs requirements.txt into runtime/lib, beside this
-# file, for the host's Python 3.13, makes tmp/, and seeds the sample project in workspace/. The box
-# reads runtime/lib and never writes it.
+# Points box.toml and policy.dw at this directory, builds Box from source into box-core/, installs
+# requirements.txt into runtime/lib, beside this file, for the host's Python 3.13, makes tmp/, and
+# seeds the sample project in workspace/. The box reads runtime/lib and never writes it.
 #
 # Why a plain `--target` directory and not a virtual environment: Box refuses a grant or a command
 # that is a symbolic link, and a venv's bin/python3 is one. So box.toml runs the real interpreter,
 # /usr/bin/python3.13, and agent.py puts runtime/lib on sys.path itself.
 set -eu
 
-here=$(cd "$(dirname "$0")" && pwd)
+# -P resolves symbolic links, which Box refuses in a path.
+here=$(cd "$(dirname "$0")" && pwd -P)
+
+# box.toml names this directory by its full path, and policy.dw by the form Box shows, with "~" for
+# your home. If the directory has moved, point both files at where it is now.
+was=$(sed -n 's#^box_dir = "\(.*\)/state"$#\1#p' "$here/box.toml")
+was_short=$(sed -n 's#^  context\.input\.path == "\(.*\)/workspace" ||$#\1#p' "$here/policy.dw")
+[ -n "$was" ] && [ -n "$was_short" ] || { echo "no path to this directory in box.toml or policy.dw" >&2; exit 1; }
+case $here in "$HOME"/*) short="~${here#"$HOME"}" ;; *) short=$here ;; esac
+if [ "$was" != "$here" ] || [ "$was_short" != "$short" ]; then
+  sed -i "s#$was#$here#g" "$here/box.toml"
+  sed -i "s#$was_short#$short#g" "$here/policy.dw"
+  echo "pointed box.toml and policy.dw at $here"
+fi
 
 # Box: the `box` binary, and the two helpers it expects in the same directory, sock-alias and
 # contain-trampoline. The clone is deleted once the binaries are copied out; a clone left by a

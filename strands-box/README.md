@@ -18,14 +18,15 @@ see [Why not the Strands CLI](#why-not-the-strands-cli).
 |---|---|
 | `agent.py` | The agent: a Bedrock model and five tools, `list_files`, `read_file`, `write_file`, `run_command`, and `run_python`. |
 | `requirements.txt` | The SDK. |
-| `setup.sh` | Builds Box from source into `box-core/`, installs the SDK into `runtime/lib` for `/usr/bin/python3.13`, makes `tmp/`, and seeds the sample project in `workspace/`. |
+| `setup.sh` | Points `box.toml` and `policy.dw` at this directory, builds Box from source into `box-core/`, installs the SDK into `runtime/lib` for `/usr/bin/python3.13`, makes `tmp/`, and seeds the sample project in `workspace/`. |
 | `box.toml` | What the box runs, and what the agent's own process can reach. |
 | `policy.dw` | The policy: Bedrock, the shell's own commands, reads in the project, writes under `out/`, and `forbid` rules for `.env` and every delete. |
 | `decisions.sh` | Prints the box's decision log, one line per decision. |
 | `workspace/` | The project the agent works on: `README.md`, `inventory.csv`, a stand-in `.env`, and `out/`. |
+| `monty-sandbox/` | A separate sample, outside the box: Monty driven from the host through `pydantic-monty`. `pyproject.toml`, `uv.lock`, and `.python-version` are its project files. Run it with `uv run monty-sandbox/sample_monty.py`. |
 
-`setup.sh` builds `box-core/`, `runtime/`, and `tmp/`, and Box creates `state/` on the first run.
-All four are in `.gitignore`.
+`setup.sh` builds `box-core/`, `runtime/`, and `tmp/`, Box creates `state/` on the first run, and
+the agent writes `workspace/out/`. All five are in `.gitignore`.
 
 ## Before you start
 
@@ -36,6 +37,10 @@ All four are in `.gitignore`.
 - `/usr/bin/python3.13` (`sudo dnf install python3.13`) and [uv](https://docs.astral.sh/uv/).
 - A Bedrock API key in `AWS_BEARER_TOKEN_BEDROCK`, made in `us-west-2`, with access to Claude Opus
   5.5.
+- `jq`, for `decisions.sh` (`sudo dnf install jq`).
+
+This directory can live anywhere. `box.toml` and `policy.dw` name it by its full path, and
+`setup.sh` rewrites those paths when the directory has moved, so run it again after a move.
 
 ## Run it
 
@@ -73,8 +78,8 @@ Then read the decision log:
 ```text
 deny    fs:read      ~/strands-main-repo/strands-box/workspace/.env            no_env
 deny    fs:delete    ~/strands-main-repo/strands-box/workspace/inventory.csv   no_deletes
-deny    shell:spawn  /usr/bin/uname -a                                         <default-deny>
-deny    fs:write     ~/strands-main-repo/strands-box/workspace/README.md       <default-deny>
+deny    shell:spawn  /usr/bin/uname -a                                         default-deny
+deny    fs:write     ~/strands-main-repo/strands-box/workspace/README.md       default-deny
 ```
 
 ## What's different on Linux

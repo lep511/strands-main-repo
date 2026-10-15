@@ -2,6 +2,9 @@
 # To author or change the policy next to this file, point your coding agent at the skill:
 #   https://raw.githubusercontent.com/strands-agents/box/main/.agents/skills/authoring-box-policy/SKILL.md
 
+# Every path to this directory is written out in full. setup.sh rewrites them, and the ones in
+# policy.dw, if the directory moves.
+
 # The box's name, and where it keeps its own state. Box creates box_dir itself, mode 0700, so don't
 # make it beforehand. The agent can't reach box_dir.
 name = "strands-sdk"
@@ -40,15 +43,15 @@ TMPDIR = "/home/ssm-user/strands-main-repo/strands-box/tmp"
 # imports the SDK from runtime/lib.
 read = [
   "/usr/lib64",
-  "~/strands-main-repo/strands-box/runtime/lib",
+  "/home/ssm-user/strands-main-repo/strands-box/runtime/lib",
 ]
 # The dynamic loader reads its cache, and Python runs agent.py.
-read_file = ["/etc/ld.so.cache", "~/strands-main-repo/strands-box/agent.py"]
+read_file = ["/etc/ld.so.cache", "/home/ssm-user/strands-main-repo/strands-box/agent.py"]
 # The SDK's compiled extensions, such as pydantic-core's .so: a `read` grant can't map code to
 # run, so an import of one fails with "failed to map segment" without this.
-exec = ["~/strands-main-repo/strands-box/runtime/lib"]
+exec = ["/home/ssm-user/strands-main-repo/strands-box/runtime/lib"]
 # Python's temporary files.
-write = ["~/strands-main-repo/strands-box/tmp"]
+write = ["/home/ssm-user/strands-main-repo/strands-box/tmp"]
 # Nothing grants the project: this process never opens a project file itself. Every tool goes
 # through the box's shell or Monty, so the policy decides each one. (Linux has no `list` grant,
 # and a `read` grant here would let this process open .env without asking the policy.)
