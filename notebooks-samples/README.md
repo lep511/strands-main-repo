@@ -28,7 +28,8 @@ Copia tus claves a un `.env` en esta carpeta (los notebooks lo leen con
 `python-dotenv`):
 
 ```bash
-BRAVE_API_KEY=...        # obligatorio para search_brave.ipynb
+BRAVE_API_KEY=...        # obligatorio para los dos notebooks
+MONGODB_CONNECTION=...   # obligatorio para mongodb_text_search.ipynb (cluster Atlas)
 AWS_REGION=us-west-2     # opcional, es el valor por defecto
 ```
 
@@ -111,10 +112,25 @@ ventana de contexto. Necesita `BRAVE_API_KEY` en `.env`.
 La última sección usa un `context_window_limit` pequeño a propósito, para que la
 compresión se dispare en un chat de cuatro turnos en vez de después de cientos.
 
+## `mongodb_text_search.ipynb` — RAG sin embeddings
+
+El agente de [`mongodb-rag`](../mongodb-rag) sobre el mismo 10-K de AnyCompany,
+pero sin modelo de embeddings: los chunks se guardan como texto plano en
+`rag_db.text_search` y se recuperan con Atlas Search (`$search`, BM25 con el
+analizador `lucene.english`). Una segunda tool consulta la API de Brave Search
+directamente con `httpx`, sin servidor MCP ni Node.js. Necesita
+`MONGODB_CONNECTION` y `BRAVE_API_KEY` en `.env`.
+
+La primera ejecución convierte el PDF (`../mongodb-rag/files/`) y crea el índice
+`text_index`, lo que toma cerca de un minuto. Las siguientes reutilizan lo que
+ya está en el cluster. Pon `REBUILD = True` si cambias el chunking o la
+definición del índice. `rag_db.test` y su índice vectorial no se tocan.
+
 ## Modelo
 
-El notebook usa Amazon Bedrock con `us.anthropic.claude-sonnet-5` y `AWS_REGION`
-(por defecto `us-west-2`).
+`search_brave.ipynb` usa Amazon Bedrock con `us.anthropic.claude-sonnet-5`, y
+`mongodb_text_search.ipynb` con `us.anthropic.claude-sonnet-5-5`. Los dos usan
+`AWS_REGION` (por defecto `us-west-2`).
 
 ## Problemas frecuentes
 
