@@ -1,26 +1,21 @@
 [project]
 name = "agent-mcp"
-version = "0.1.0"
-description = "MCP server (spec 2026-07-28) backed by a Strands Agent — two-process architecture"
+version = "0.2.0"
+description = "Customer-service MCP server (spec 2026-07-28, FastMCP 4) plus a Strands agent client"
 readme = "README.md"
 authors = [
     { name = "lep511", email = "estebanpbuday@gmail.com" }
 ]
 requires-python = ">=3.13"
 dependencies = [
+    # Server side: FastMCP 4 speaks the sessionless 2026-07-28 protocol and
+    # still negotiates the legacy handshake for older clients.
+    "fastmcp>=4.1.0,<5",
+    # Client side: strands-agents >= 1.61 runs on the mcp 2.x SDK (mcp<2.2),
+    # so both halves now share one environment.
+    "strands-agents>=1.61.0",
+    "strands-agents-tools>=0.8.9",
     "python-dotenv>=1.0",
-]
-
-[project.optional-dependencies]
-mcp-server = [
-    "fastmcp==4.0.0b1",
-    "httpx>=0.27",
-]
-agent-service = [
-    "strands-agents>=0.1",
-    "strands-agents-tools>=0.1",
-    "fastapi>=0.115",
-    "uvicorn>=0.34",
     "rich>=13",
 ]
 
@@ -28,14 +23,16 @@ agent-service = [
 agent-mcp = "agent_mcp.mcp_server:main"
 agent-service = "agent_mcp.agent_service:main"
 
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+]
+
 [build-system]
 requires = ["uv_build>=0.12.0,<0.13.0"]
 build-backend = "uv_build"
 
-[tool.uv]
-conflicts = [
-    [
-        { extra = "mcp-server" },
-        { extra = "agent-service" },
-    ],
-]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

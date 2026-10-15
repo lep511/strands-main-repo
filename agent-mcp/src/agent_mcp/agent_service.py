@@ -1,6 +1,16 @@
-"""Strands Agent that connects to MCP servers for customer service.
+"""Strands Agent that connects to the customer-service MCP server.
 
-Uses MCPClient with both streamable HTTP (local customer-service MCP).
+Strands >= 1.61 runs on the mcp 2.x SDK. ``MCPClient(url=...)`` opens a
+streamable HTTP transport and negotiates the best mutual protocol: it probes
+``server/discover`` first and adopts the sessionless 2026-07-28 protocol when
+the server supports it, falling back to the legacy ``initialize`` handshake
+otherwise.
+
+Multi round-trip requests (SEP-2322): when a tool such as ``process_refund``
+answers ``input_required``, Strands resolves the embedded elicitation through
+``elicitation_callback`` and retries the call with the user's answer. The
+callback below asks the person at the terminal, so no refund happens without
+explicit consent.
 
 Run: python -m agent_mcp.agent_service
 """
@@ -13,10 +23,10 @@ warnings.filterwarnings("ignore")
 logging.disable(logging.CRITICAL)
 
 from dotenv import load_dotenv
-from mcp import stdio_client, StdioServerParameters
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.types import ElicitResult
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.panel import Panel
 from strands import Agent
 from strands.tools.mcp import MCPClient
 
@@ -53,21 +63,80 @@ class RichCallbackHandler:
                     self.status.update(f"[bold cyan]Calling [yellow]{name}[/yellow]({details})")
 
 
+callback = RichCallbackHandler()
+
+
+def _parse_answer(raw: str, prop: dict):
+    """Coerce a terminal answer to the JSON type the elicitation schema asks for."""
+    kind = prop.get("type", "string")
+    raw = raw.strip()
+    if kind == "boolean":
+        return raw.lower() in ("y", "yes", "true", "1", "ok")
+    if kind == "integer":
+        return int(raw)
+    if kind == "number":
+        return float(raw)
+    return raw
+
+
+async def ask_user_in_terminal(context, params) -> ElicitResult:
+    """Elicitation callback: the server needs input from the user.
+
+    Works for both protocol eras. On 2026-07-28 this is the client half of a
+    multi round-trip request (the server returned ``input_required``); on a
+    legacy connection it answers an ``elicitation/create`` back-channel call.
+    """
+    status = callback.status
+    if status:
+        status.stop()
+    try:
+        console.print()
+        console.print(Panel(params.message, title="[bold]Server needs your input[/bold]", border_style="yellow"))
+
+        schema = getattr(params, "requested_schema", None) or {}
+        props = schema.get("properties", {})
+        if not props:
+            answer = console.input("[bold]Accept?[/bold] (y/n): ")
+            if answer.strip().lower() in ("y", "yes"):
+                return ElicitResult(action="accept", content={})
+            return ElicitResult(action="decline")
+
+        content = {}
+        for key, prop in props.items():
+            label = prop.get("title") or key
+            hint = "(y/n)" if prop.get("type") == "boolean" else ""
+            desc = prop.get("description")
+            if desc:
+                console.print(f"[dim]{desc}[/dim]")
+            raw = console.input(f"[bold]{label}[/bold] {hint}: ")
+            if not raw.strip():
+                return ElicitResult(action="cancel")
+            content[key] = _parse_answer(raw, prop)
+        return ElicitResult(action="accept", content=content)
+    except (EOFError, KeyboardInterrupt):
+        return ElicitResult(action="cancel")
+    finally:
+        if status:
+            status.start()
+
+
 SYSTEM_PROMPT = """You are a customer service agent. You help users look up customer
-information, check order history, and process refunds."""
+information, check order history, and process refunds. Before calling process_refund,
+tell the user what you are about to do; the tool itself will ask them to confirm."""
 
 MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL", "http://localhost:8000/mcp")
 
-# Remote MCP server (Streamable HTTP) — customer service tools
+# Streamable HTTP transport (mcp 2.x). Protocol negotiation is automatic:
+# server/discover → 2026-07-28, else legacy initialize handshake.
 customer_service_mcp = MCPClient(
-    lambda: streamablehttp_client(MCP_SERVER_URL),
-    prefix="customer"
+    url=MCP_SERVER_URL,
+    prefix="customer",
+    application_name="agent-mcp-cli",
+    elicitation_callback=ask_user_in_terminal,
 )
 
 
 def main() -> None:
-    callback = RichCallbackHandler()
-
     agent = Agent(
         tools=[customer_service_mcp],
         system_prompt=SYSTEM_PROMPT,
@@ -75,7 +144,7 @@ def main() -> None:
     )
 
     console.print("[bold]Customer Service Agent[/bold]")
-    console.print("[dim]Tools: customer-service MCP")
+    console.print(f"[dim]MCP server: {MCP_SERVER_URL}")
     console.print("Type 'quit' to exit.")
     console.print("-" * 50)
 
