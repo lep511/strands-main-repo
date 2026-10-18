@@ -1,0 +1,35 @@
+# Local stand-in for AWS Agent Registry: one record per agent in this repo's estate.
+# Fields mirror what Agent Registry captures: publisher/owner, capabilities (tools),
+# how it runs, and lifecycle status. Runtime status changes (revocations) are kept
+# in .registry_state.json so this versioned file stays the reviewed source of truth.
+registry: advent-of-agents-dev
+agents:
+  - id: adlc-day1
+    owner: you@example.com
+    source: src/module-1
+    entrypoint: src/module-1/adlc_agent.py
+    model: us.anthropic.claude-sonnet-4-6
+    identity: null          # runs with the developer's AWS credentials
+    tools: [get_weather, get_current_time]
+    risk_tier: low
+    status: active
+
+  - id: inbox-assistant
+    owner: you@example.com
+    source: src/module-2
+    entrypoint: src/module-2/inbox_agent.py
+    model: us.anthropic.claude-sonnet-4-6
+    identity: null
+    tools: [list_inbox, read_email, search_contacts, send_email]
+    risk_tier: high         # acts on the user's behalf (send_email)
+    status: active
+
+  - id: governance-assessor
+    owner: you@example.com
+    source: src/module-4
+    entrypoint: src/module-4/governance_agent.py
+    model: us.anthropic.claude-sonnet-4-6
+    identity: null
+    tools: [read_checklist, read_registry, collect_evidence]
+    risk_tier: low
+    status: active

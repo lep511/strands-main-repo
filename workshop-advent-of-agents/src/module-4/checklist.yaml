@@ -1,0 +1,159 @@
+# Agent Governance Readiness Checklist (Advent of Agents S3 Day 4), mapped to AWS + Strands.
+# Levels: 1 = manual / ad hoc, 3 = standardized in production, 5 = automated everywhere.
+# Scoring rule: a layer scores its WEAKEST area. Start at the lowest layer below Level 3.
+
+layers:
+  - id: foundation
+    title: Foundation
+    question: Is every agent cataloged, owned, and identifiable?
+    phase: "Days 1-30"
+    done_when: Every agent is registered, owned, and given its own identity.
+    areas:
+      - id: identity
+        title: Identity
+        google: Each agent has its own cryptographic identity (SPIFFE).
+        aws: Each agent has its own workload identity (AgentCore Identity) and IAM role, not a developer's credentials.
+        levels:
+          1: Agents run with shared or developer credentials.
+          3: Every production agent has its own workload identity and role.
+          5: Identities are issued and rotated automatically at deploy time.
+      - id: inventory
+        title: Inventory
+        google: Core agents and tools are cataloged in a central registry.
+        aws: Agents, tools and MCP servers are records in AWS Agent Registry with a named owner.
+        levels:
+          1: No catalog, or a spreadsheet nobody trusts.
+          3: Every production agent and its tools are in a central registry with an owner.
+          5: Registration is enforced at deploy time; unregistered agents are detected automatically.
+      - id: infrastructure
+        title: Infrastructure
+        google: Agents deploy from Terraform or other IaC templates.
+        aws: Agents deploy to AgentCore Runtime from CDK, CloudFormation, Terraform or the AgentCore CLI project files.
+        levels:
+          1: Agents are run by hand or deployed through console clicks.
+          3: Production agents deploy from IaC templates.
+          5: Every change ships through a pipeline from IaC, with drift detection.
+
+  - id: prevention
+    title: Prevention
+    question: Can you block policy violations inline?
+    phase: "Days 31-60"
+    done_when: Every tool call routes via a gateway and prompt screening fails closed.
+    areas:
+      - id: prompt_shielding
+        title: Prompt shielding
+        google: Model Armor screens prompts inline at the gateway.
+        aws: Bedrock Guardrails (prompt-attack filter) screens input; untrusted tool output is isolated.
+        levels:
+          1: Only system-prompt rules.
+          3: A managed prompt-attack filter screens every request inline.
+          5: Screening fails closed and is enforced centrally for every agent.
+      - id: data_leaks
+        title: Data leaks
+        google: Managed PII masking and domain allowlists run on output.
+        aws: Bedrock Guardrails sensitive-information filters plus domain allowlists on output and on tool arguments.
+        levels:
+          1: No output controls.
+          3: PII masking and domain allowlists run on every agent's output.
+          5: Managed, centrally configured, and covered by regression tests.
+      - id: circuit_breakers
+        title: Circuit breakers
+        google: Iteration ceilings and rate limits are enforced at the gateway.
+        aws: Strands invocation limits (turns, tokens), tool-call budgets, and rate limits at AgentCore Gateway.
+        levels:
+          1: Agents can loop and spend without bound.
+          3: Every production agent has iteration and token ceilings.
+          5: Ceilings and rate limits are enforced centrally at the gateway.
+
+  - id: detection
+    title: Detection
+    question: Can you spot anomalies, permission changes, and new agents, with an immutable audit trail?
+    phase: "Days 31-60"
+    done_when: OpenTelemetry traces land in a queryable sink and drift alerts are active.
+    areas:
+      - id: tracing
+        title: Tracing
+        google: OpenTelemetry spans land in Cloud Trace for model and tool calls.
+        aws: Strands OpenTelemetry spans exported via OTLP/ADOT to CloudWatch (AgentCore Observability, X-Ray).
+        levels:
+          1: Console output or none.
+          3: Every production agent exports OTel spans to a queryable backend.
+          5: Traces are correlated across agents with dashboards and SLOs.
+      - id: anomalies
+        title: Anomalies
+        google: Alerts fire on token-volume and trajectory anomalies.
+        aws: CloudWatch alarms / anomaly detection on token usage, tool-call volume and trajectory metrics.
+        levels:
+          1: Nobody would notice.
+          3: Alerts fire on token-volume and trajectory anomalies.
+          5: Anomalies open incidents automatically.
+      - id: audit
+        title: Audit
+        google: Immutable audit logs export to BigQuery.
+        aws: Audit events go to an immutable store (CloudTrail Lake, or S3 with Object Lock queried by Athena).
+        levels:
+          1: Local logs, or none.
+          3: Audit events of every agent go to an immutable, queryable store.
+          5: Audit coverage is verified continuously.
+
+  - id: response
+    title: Response
+    question: Can you prove containment worked?
+    phase: "Days 61-90"
+    done_when: Tested playbooks can revoke an agent in under a minute.
+    areas:
+      - id: containment
+        title: Containment
+        google: A single agent's credentials can be revoked in the console.
+        aws: One agent can be revoked (registry status, IAM role, AgentCore Identity) and running invocations stop.
+        levels:
+          1: Revoking means shutting everything down.
+          3: A single agent can be revoked, and a drill proves it stops in under a minute.
+          5: Containment is automated from alerts.
+      - id: threat_alerts
+        title: Threat alerts
+        google: Security Command Center alerts on anomalous API calls.
+        aws: GuardDuty / Security Hub alert on anomalous API calls made with an agent's role.
+        levels:
+          1: No security alerting for agents.
+          3: Anomalous API calls by agent identities raise alerts.
+          5: Alerts are triaged and routed automatically.
+      - id: playbooks
+        title: Playbooks
+        google: Standard incident and postmortem templates are tested.
+        aws: An agent incident playbook and postmortem template exist and are exercised by drills.
+        levels:
+          1: No playbook.
+          3: A standard playbook exists and has been tested in a drill.
+          5: Drills run on a schedule and results are tracked.
+
+  - id: alignment
+    title: Continuous Alignment
+    question: Do escapes become better policy?
+    phase: "Days 61-90"
+    done_when: Postmortems update policy, gated by regression evals before release.
+    areas:
+      - id: drift
+        title: Drift
+        google: Automated evaluations run daily in QA.
+        aws: Strands Evals (or AgentCore Evaluations) run on a schedule in CI.
+        levels:
+          1: Evals are run by hand, if at all.
+          3: Automated evals run daily or on every change.
+          5: Evals gate every release and track drift over time.
+      - id: red_teaming
+        title: Red teaming
+        google: Scheduled automated prompt-injection scans run continuously.
+        aws: Strands Evals red teaming / attack suites run on a schedule.
+        levels:
+          1: No adversarial testing.
+          3: Automated prompt-injection scans run on a schedule.
+          5: Findings feed new cases automatically.
+      - id: policy_updates
+        title: Policy updates
+        google: Engineering leads hold scheduled policy reviews.
+        aws: Design specs and policies are versioned and reviewed; postmortems update them.
+        levels:
+          1: Policies are not written down.
+          3: Policies are versioned and reviewed on a schedule.
+          5: Every postmortem produces a policy change gated by a regression eval.
