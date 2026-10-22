@@ -16,7 +16,7 @@ dependencies = [
     "pymongo>=4.19.0",
     "pymupdf4llm>=1.28.2",
     "python-dotenv>=1.2.4",
-    "strands-agents[cedar]>=1.60.0",
+    "strands-agents[a2a,cedar]>=1.60.0",
     "strands-agents-tools>=0.8.9",
 ]
 
