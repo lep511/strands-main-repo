@@ -1,0 +1,7 @@
+.venv/
+.agent/
+__pycache__/
+*.pyc
+uv.lock
+*.sqlite3
+.env

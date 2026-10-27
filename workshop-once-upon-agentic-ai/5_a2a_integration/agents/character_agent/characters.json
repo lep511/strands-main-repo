@@ -1,0 +1,32 @@
+{
+    "_default": {
+        "1": {
+            "character_id": "24cc1f76-bf0e-48f7-8cb3-79fc15b05d9a",
+            "name": "Thorin",
+            "character_class": "Warrior",
+            "race": "Dwarf",
+            "gender": "Male",
+            "level": 1,
+            "experience": 0,
+            "stats": {
+                "strength": 13,
+                "dexterity": 11,
+                "constitution": 14,
+                "intelligence": 13,
+                "wisdom": 12,
+                "charisma": 8
+            },
+            "inventory": [
+                {
+                    "item_name": "Starting Equipment Pack",
+                    "quantity": 1
+                },
+                {
+                    "item_name": "Gold Pieces",
+                    "quantity": 100
+                }
+            ],
+            "created_at": "2026-10-27T21:06:18.251352"
+        }
+    }
+}
