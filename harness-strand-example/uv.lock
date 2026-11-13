@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.13"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -39,30 +39,30 @@ wheels = [
 
 [[package]]
 name = "boto3"
-version = "1.43.102"
+version = "1.44.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/e6/2a24a2013beecdd9a381bcf7a11981478a1f5f78e37908c0fddba3cd915f/boto3-1.43.102.tar.gz", hash = "sha256:440bdd9fbf88d57809b68839fb690f19e4db65fa5539e60cc803ebd7b9e5e8fc", size = 112696, upload-time = "2026-09-24T19:25:18.329Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/58/ab/c2d0e6b543e718af9b963e980f9e72d918c2b889cb2cc3749999f63f14f3/boto3-1.44.2.tar.gz", hash = "sha256:70c02826640da17c15067033af01667059dde5e86057c2d1227cd8523c2f24dd", size = 112796, upload-time = "2026-11-12T20:58:21.405Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/ea/5bb0e8a8a4b04221b054365a5904fd63b6bcc22edcf4aa75a253f946b86e/boto3-1.43.102-py3-none-any.whl", hash = "sha256:b2a06cbbcb2cb0484f126172eab0881252f01007e8f7e0607ecac131cff9f744", size = 140042, upload-time = "2026-09-24T19:25:16.822Z" },
+    { url = "https://files.pythonhosted.org/packages/72/ac/d6fb4b50f688b106a9be682d5146829d717bddafef04b061b6ef43d1a859/boto3-1.44.2-py3-none-any.whl", hash = "sha256:d62ff8a9eb06cab9f0b4242d7a2907a8fff9cca630e27ef736660f9d53e5b18e", size = 140157, upload-time = "2026-11-12T20:58:19.236Z" },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.43.102"
+version = "1.44.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7d/12/97d043f9bfdd54984f8d562169a9ac800c7b94a5b5fdb9b7d7b46659ebd2/botocore-1.43.102.tar.gz", hash = "sha256:3239f3c8611f0fbfb1a3fda77fb70e18f87bec102edf38f67e40902c56639c10", size = 16232455, upload-time = "2026-09-24T19:25:13.238Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/fa/5cc188196076a432700671ef36c63fab463f41919b7a1440de906247bb16/botocore-1.44.2.tar.gz", hash = "sha256:39da314d7bab66e9da9af5531445d237beaeeab1fce0ed034bb6315d480b85ce", size = 16642983, upload-time = "2026-11-12T20:58:15.821Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/95/e2791a9dfc989e3580ce087085a45a67987e693f364e2461904d962e3951/botocore-1.43.102-py3-none-any.whl", hash = "sha256:78d9dcee19950444b4ff0250125aff735da4f7d6db46eb1e9aca82dc8f101a66", size = 15926988, upload-time = "2026-09-24T19:25:09.891Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/de/c9df76a63d82203a335b2ab02e5a976758747c9a5960b096dbc00c22f8eb/botocore-1.44.2-py3-none-any.whl", hash = "sha256:f255849e8adc413812162e100cf53c4d096d07d9fd6f1773d90fa6034f7d8980", size = 16342924, upload-time = "2026-11-12T20:58:11.603Z" },
 ]
 
 [[package]]
@@ -248,9 +248,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "boto3", specifier = ">=1.43.102" },
+    { name = "boto3", specifier = ">=1.44.2" },
     { name = "rich", specifier = ">=15.0.0" },
-    { name = "strands-harness", specifier = ">=0.1.2" },
+    { name = "strands-harness", specifier = ">=0.4.0" },
 ]
 
 [[package]]
@@ -522,6 +522,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/03/ee/968d70b3c80c6f3bbdb168a3018cf18c78fbeadd330f6f4851fe029f8410/opentelemetry_instrumentation_threading-0.66b0.tar.gz", hash = "sha256:4c1c9adf42b83b6f44ca4bb99799e066ccfb1869c2029bc73d862c40a8ef932e", size = 9033, upload-time = "2026-09-25T12:36:17.626Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/37/24/0667079f02a507952baa6e14df90d3da870650fb029b6e1860a9e2dde3a9/opentelemetry_instrumentation_threading-0.66b0-py3-none-any.whl", hash = "sha256:4aaf38b96b47a04319b8d96bee4f1daa04e0d6c697525595746aeb61618c002d", size = 8491, upload-time = "2026-09-25T12:35:34.555Z" },
+]
+
+[[package]]
+name = "opentelemetry-processor-baggage"
+version = "0.66b2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-sdk" },
+    { name = "wrapt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cc/52/bbff8c2a7ddaef2865e198082f0b39f8d2124eaafb6ea4bb165c28e4d9f2/opentelemetry_processor_baggage-0.66b2.tar.gz", hash = "sha256:1c5acb98a804d62314e0743a567e959bb44a95224c0442fca422536967370bf6", size = 8794, upload-time = "2026-10-29T17:38:53.374Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/91/f4b8d8ce76de96faf706da93684ef7d1f5df1d85753bbb0c2af0f8dd4492/opentelemetry_processor_baggage-0.66b2-py3-none-any.whl", hash = "sha256:1d36888f686562f5f31576c4c1156d6e461c41a75162b7196b317a26194e0b8b", size = 9468, upload-time = "2026-10-29T17:38:04.379Z" },
 ]
 
 [[package]]
@@ -986,7 +1000,7 @@ wheels = [
 
 [[package]]
 name = "strands-agents"
-version = "1.57.0"
+version = "1.64.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "boto3" },
@@ -1003,28 +1017,29 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f7/e9/5d6ec54b3458ca32f23cd05bb40c568eeb6c6f5e157c107e88d1fe681dba/strands_agents-1.57.0.tar.gz", hash = "sha256:df3973ae0a529b409e5449d7b72483edab7c54eeb6a88b46af6eeb38489d218b", size = 1684990, upload-time = "2026-09-22T19:23:07.004Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1a/6c/6311d81cc7c516d81856a477cf0d87fed3114937f99c1442c11fef2b5684/strands_agents-1.64.0.tar.gz", hash = "sha256:e2b6af4e777c1c4c7b7eddc4b94bf61ea4a96702b9b44a4f3217b4faede31f25", size = 1955145, upload-time = "2026-11-04T19:54:21.768Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/97/e124af58ee5712ec56bdab7cbcd9c0e2ce9cacb52d78f806366cc25f79f9/strands_agents-1.57.0-py3-none-any.whl", hash = "sha256:9089e158fc539f2dd857c55ee7df140241359d4e1ba295d827a3d9e27215889f", size = 850497, upload-time = "2026-09-22T19:23:03.365Z" },
+    { url = "https://files.pythonhosted.org/packages/57/0d/e8f1f14d1fec3616ee8cffb0a2f06ff7ef6b37f2ac6000ecd999cc05acd3/strands_agents-1.64.0-py3-none-any.whl", hash = "sha256:e869bfae7237159fd6700b5cca88fa323c32939a4a1d01b9694caabd9b195473", size = 989715, upload-time = "2026-11-04T19:54:19.602Z" },
 ]
 
 [package.optional-dependencies]
 otel = [
     { name = "opentelemetry-exporter-otlp-proto-http" },
+    { name = "opentelemetry-processor-baggage" },
 ]
 
 [[package]]
 name = "strands-harness"
-version = "0.1.2"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "pydantic-monty" },
     { name = "strands-agents", extra = ["otel"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/da/06/62d89d648d82281bdaad090325aedc9c244698296011273ea28ca1e673fa/strands_harness-0.1.2.tar.gz", hash = "sha256:eb0aaccb8708c64f53eaa101b6efd442a693ffb04f02b448440f0aa4cbc12ae5", size = 154151, upload-time = "2026-09-22T21:29:58.705Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/9e/8e03c20df09a978a06fd15d89643422803ff61e5332281c97edb8ddff3ed/strands_harness-0.4.0.tar.gz", hash = "sha256:90677dae8fd6f93a1b99871eb489b2cee54736456ddcc34e5631f926b4cc3825", size = 169088, upload-time = "2026-11-12T22:34:54.438Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/95/18/e82414cc6c5743cdefd93e29ba1c7cad58f02877c399388d95629acc6b10/strands_harness-0.1.2-py3-none-any.whl", hash = "sha256:0d9ab3d81edaf340962f2fc4e22f11d645c44793245d051d1894c2b8678f9192", size = 89089, upload-time = "2026-09-22T21:29:56.66Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/6b/686f2cd9ff5bd82f4cc8f6a2ce74dbcf4904464ddaf7792f1074fad8ada9/strands_harness-0.4.0-py3-none-any.whl", hash = "sha256:33be4f4741753b39b2c4606b926c81d84dc84b6c40b1be0b3f0e981d760b00a0", size = 93455, upload-time = "2026-11-12T22:34:52.882Z" },
 ]
 
 [[package]]

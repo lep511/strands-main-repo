@@ -1,4 +1,13 @@
 import boto3
+
+# Importing readline enables arrow-key navigation, line editing, and input
+# history for the built-in input() that Rich's console.input() relies on.
+# Without it, arrow keys emit raw escape sequences (e.g. ^[[D, ^[[A).
+try:
+    import readline  # noqa: F401
+except ImportError:  # readline is unavailable on some platforms (e.g. Windows)
+    readline = None
+
 from botocore.exceptions import ClientError
 from strands import Agent, tool
 from strands.hooks import HookProvider, HookRegistry, MessageAddedEvent, AfterInvocationEvent
@@ -12,10 +21,32 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich.live import Live
+from rich.spinner import Spinner
 
 REGION = "us-east-1"
+GUARDRAIL_NAME = "rewards-agent-guardrail"
 
 console = Console()
+
+
+def read_user_input() -> str:
+    """Read a line from the user with a colored prompt.
+
+    When readline is available we call input() directly with the ANSI color
+    codes wrapped in \\001/\\002 markers so readline excludes them from its
+    cursor-width accounting. This prevents the "You>" prompt from being erased
+    when the cursor is moved around or the line wraps. If readline is missing,
+    we fall back to Rich's markup prompt.
+    """
+    if readline is not None:
+        # \001 = RL_PROMPT_START_IGNORE, \002 = RL_PROMPT_END_IGNORE.
+        # The color reset must come *before* the final visible space: readline
+        # drops a trailing all-invisible segment, which would otherwise leave
+        # the reset unemitted and color the user's typed text.
+        prompt = "\001\033[1;34m\002You>\001\033[0m\002 "
+        return input(prompt)
+    return console.input("[bold blue]You>[/bold blue] ")
+
 
 MEMORY_PATH = str(Path.home() / ".strands" / "memory" / "rewards-agent.json")
 store = TestMemoryStore(name="rewards-agent", path=MEMORY_PATH)
@@ -106,6 +137,118 @@ def _get_policy_summary(client, guardrail_id: str, version: str) -> Text:
         summary.append(", ".join(names), style="blue")
 
     return summary or Text("(no active policies)", style="dim")
+
+
+# ---------------------------------------------------------------------------
+# Guardrail provisioning — find by name or create it if it doesn't exist
+# ---------------------------------------------------------------------------
+
+def _guardrail_config() -> dict:
+    """Return the policy configuration used when auto-creating the guardrail.
+
+    Tuned for a rewards-program assistant: blocks off-topic financial advice,
+    applies content filters, and shields against prompt injection.
+    """
+    return {
+        "topicPolicyConfig": {
+            "topicsConfig": [
+                {
+                    "name": "Financial Advice",
+                    "definition": (
+                        "Providing specific investment, tax, trading, or personal "
+                        "financial-planning advice. The assistant only explains the "
+                        "rewards program, not how to invest money."
+                    ),
+                    "examples": [
+                        "Should I invest my reward points in stocks?",
+                        "What cryptocurrency should I buy with my cashback?",
+                        "How do I minimize my taxes this year?",
+                    ],
+                    "type": "DENY",
+                },
+            ],
+        },
+        "contentPolicyConfig": {
+            "filtersConfig": [
+                {"type": "SEXUAL", "inputStrength": "HIGH", "outputStrength": "HIGH"},
+                {"type": "VIOLENCE", "inputStrength": "HIGH", "outputStrength": "HIGH"},
+                {"type": "HATE", "inputStrength": "HIGH", "outputStrength": "HIGH"},
+                {"type": "INSULTS", "inputStrength": "MEDIUM", "outputStrength": "MEDIUM"},
+                {"type": "MISCONDUCT", "inputStrength": "MEDIUM", "outputStrength": "MEDIUM"},
+                # PROMPT_ATTACK only supports input filtering; outputStrength must be NONE.
+                {"type": "PROMPT_ATTACK", "inputStrength": "HIGH", "outputStrength": "NONE"},
+            ],
+        },
+        "blockedInputMessaging": "Sorry, I can't help with that request.",
+        "blockedOutputsMessaging": "Sorry, I can't provide that response.",
+    }
+
+
+def ensure_guardrail(name: str = GUARDRAIL_NAME) -> tuple[str, str] | None:
+    """Return the ``(id, version)`` of the guardrail named ``name``.
+
+    Looks the guardrail up by name; if none exists, it is created with the
+    policy configuration from :func:`_guardrail_config`. Returns ``None`` if the
+    guardrail could not be found or created (e.g. missing IAM permissions), so
+    the agent can still run without guardrails.
+    """
+    client = boto3.client("bedrock", REGION)
+
+    # 1. Try to find an existing guardrail with this name.
+    try:
+        paginator = client.get_paginator("list_guardrails")
+        for page in paginator.paginate():
+            for g in page.get("guardrails", []):
+                if g.get("name") == name:
+                    console.print(Panel(
+                        f"Using existing guardrail [bold]{name}[/bold] "
+                        f"([cyan]{g['id']}[/cyan])",
+                        title="Guardrail Found",
+                        title_align="left",
+                        border_style="green",
+                    ))
+                    # DRAFT always reflects the latest working version.
+                    return g["id"], "DRAFT"
+    except ClientError as e:
+        console.print(Panel(
+            f"Could not list guardrails: {e.response['Error']['Message']}",
+            title="Guardrails Unavailable",
+            border_style="yellow",
+        ))
+        return None
+
+    # 2. Not found — create it.
+    console.print(Panel(
+        f"No guardrail named [bold]{name}[/bold] found — creating it...",
+        title="Creating Guardrail",
+        title_align="left",
+        border_style="cyan",
+    ))
+    try:
+        response = client.create_guardrail(
+            name=name,
+            description="Auto-created guardrail for the Strands rewards assistant example.",
+            **_guardrail_config(),
+        )
+        gid = response["guardrailId"]
+        version = response.get("version", "DRAFT")
+        console.print(Panel(
+            f"Created guardrail [bold]{name}[/bold] ([cyan]{gid}[/cyan]), "
+            f"version [bold]{version}[/bold].",
+            title="Guardrail Created",
+            title_align="left",
+            border_style="green",
+        ))
+        return gid, version
+    except ClientError as e:
+        console.print(Panel(
+            f"Could not create guardrail: {e.response['Error']['Message']}\n\n"
+            "[dim]The agent will run without guardrail enforcement.[/dim]",
+            title="Guardrail Creation Failed",
+            title_align="left",
+            border_style="yellow",
+        ))
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -269,11 +412,22 @@ class RichCallbackHandler:
     def __init__(self):
         self.tool_count = 0
         self._buffer = ""
-        self._live = Live(console=console, refresh_per_second=12, vertical_overflow="visible")
+        # Animated spinner shown while waiting for the first token.
+        self._spinner = Spinner("dots", text=Text(" Thinking…", style="cyan"), style="cyan")
+        # transient=True clears the live stream when stopped, so the final
+        # answer is only shown once (in the "Agent Response" panel below).
+        self._live = Live(
+            console=console,
+            refresh_per_second=12,
+            vertical_overflow="visible",
+            transient=True,
+        )
 
     def start(self):
         self._buffer = ""
         self._live.start()
+        # Show the animated spinner until content starts streaming.
+        self._live.update(self._spinner)
 
     def stop(self):
         self._live.stop()
@@ -338,9 +492,16 @@ class NotifyOnlyGuardrailsHook(HookProvider):
                             details.append(f"{f['type']}", style="bold yellow")
                             details.append(f" → {f['confidence']} confidence\n", style="red")
 
+                details.append(
+                    "\nNotify-only mode: the guardrail is NOT attached to the model, "
+                    "so this was only detected — the agent's response is still delivered "
+                    "(not blocked).",
+                    style="dim italic",
+                )
+
                 console.print(Panel(
                     details,
-                    title="⚠ Guardrail Violation Detected",
+                    title="⚠ Guardrail Violation Detected (notify-only)",
                     title_align="left",
                     border_style="bold red",
                     padding=(1, 2),
@@ -370,20 +531,30 @@ class NotifyOnlyGuardrailsHook(HookProvider):
 
 callback = RichCallbackHandler()
 
-agent = Agent(
-    agent_id="rewards-assistant",
-    system_prompt=(
-        "You are a rewards program assistant. Use the available tools to look up "
-        "tier details and list all tiers from the RewardsDatabase when users ask "
-        "about rewards, points, multipliers, or tier benefits. "
-        "Use add_memory to save important facts the user tells you (name, preferences, tier). "
-        "Memory persists across sessions so you can recall past conversations."
-    ),
-    tools=[lookup_rewards_tier, list_all_rewards_tiers, register_user, get_user],
-    hooks=[NotifyOnlyGuardrailsHook("9higgosxklzg", "DRAFT")],
-    callback_handler=callback,
-    memory_manager=MemoryManager(stores=[store], add_tool_config=True),
-)
+
+def build_agent() -> Agent:
+    """Construct the rewards agent, provisioning the guardrail if needed."""
+    guardrail = ensure_guardrail()
+    hooks = []
+    if guardrail is not None:
+        gid, gver = guardrail
+        hooks.append(NotifyOnlyGuardrailsHook(gid, gver))
+
+    return Agent(
+        agent_id="rewards-assistant",
+        system_prompt=(
+            "You are a rewards program assistant. Use the available tools to look up "
+            "tier details and list all tiers from the RewardsDatabase when users ask "
+            "about rewards, points, multipliers, or tier benefits. "
+            "Use add_memory to save important facts the user tells you (name, preferences, tier). "
+            "Memory persists across sessions so you can recall past conversations."
+        ),
+        tools=[lookup_rewards_tier, list_all_rewards_tiers, register_user, get_user],
+        hooks=hooks,
+        callback_handler=callback,
+        memory_manager=MemoryManager(stores=[store], add_tool_config=True),
+    )
+
 
 def main():
     console.print(
@@ -395,12 +566,14 @@ def main():
         )
     )
 
+    agent = build_agent()
+
     list_guardrails()
 
     while True:
         try:
             console.print()
-            prompt = console.input("[bold blue]You>[/bold blue] ").strip()
+            prompt = read_user_input().strip()
         except (EOFError, KeyboardInterrupt):
             console.print("\n[dim]Goodbye![/dim]")
             break
@@ -420,7 +593,7 @@ def main():
         console.print()
         console.print(Panel(
             Markdown(str(result)),
-            title="Agent Response",
+            title="🤖 Agent Response (model)",
             title_align="left",
             border_style="green",
             padding=(1, 2),

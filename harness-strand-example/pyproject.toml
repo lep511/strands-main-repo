@@ -8,9 +8,9 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "boto3>=1.43.102",
+    "boto3>=1.44.2",
     "rich>=15.0.0",
-    "strands-harness>=0.1.2",
+    "strands-harness>=0.4.0",
 ]
 
 [project.scripts]
