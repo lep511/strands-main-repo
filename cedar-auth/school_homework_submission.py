@@ -277,13 +277,15 @@ if __name__ == "__main__":
         invocation_state={"teacher_id": "teacher_01"},
     )
 
-    # Scenario 4: Submitted past 11:59 PM on due date - DENIED
+    # Scenario 4: Submitted just after the 11:59 PM deadline - DENIED
+    # The deadline is 11:59 PM (2359) on the due date, which is the latest valid
+    # clock time; anything past it rolls over to the next day (submission_date=1).
     run_scenario(
-        title="Submitted at 00:30 past deadline on due date - DENIED",
+        title="Submitted at 00:30, just after the deadline (next day) - DENIED",
         style="red",
         prompt=(
             "Validate a homework submission: has_full_name=true, has_student_id=true, "
-            "submission_date=0, submission_time=2400, submitted_through_portal=true, "
+            "submission_date=1, submission_time=30, submitted_through_portal=true, "
             "homework_type=WRITTEN_RESPONSE, shows_intermediate_steps=false, word_count=400, "
             "quoted_material_percentage=2, file_name_follows_format=true"
         ),

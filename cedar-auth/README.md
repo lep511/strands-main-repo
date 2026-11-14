@@ -68,6 +68,33 @@ Shows how to use namespace-prefixed Cedar policies (e.g. `Agent::Action::"search
 uv run python namespaced_policies.py
 ```
 
+### School Homework Submission Policy
+
+A school's homework submission policy expressed as Cedar `permit`/`forbid` rules. A `ValidateHomeworkSubmission` tool carries a submission's attributes, and the `HomeworkSubmissionCedarAuthorization` handler decides at the tool-call boundary whether the submission is acceptable:
+
+- **Base requirements** (all must hold): student full name and ID present, submitted through the official portal, file name follows `AssignmentNumber_LastName_FirstName`, and received on or before 11:59 PM on the due date.
+- **Math solutions** (`MATHEMATICAL_SOLUTION`): denied unless all intermediate steps are shown.
+- **Written responses** (`WRITTEN_RESPONSE`): denied if under 250 words or more than 5% quoted material.
+
+When a submission is denied, the handler returns a plain-language list of exactly which rules were violated.
+
+**`homework_policy_chatbot.py` — student-facing chatbot.** An interactive assistant that answers student questions about the policy *and* checks a submission the student describes in plain language. General questions ("How many words does my essay need?") are answered from the policy; when a student describes a specific submission, the model calls `ValidateHomeworkSubmission`, and the Cedar handler has the final say — so the assistant cannot talk itself into accepting a late or under-length submission. On a denial it relays exactly which rules failed and what to fix.
+
+```bash
+uv run python homework_policy_chatbot.py           # interactive chat (needs Bedrock access)
+uv run python homework_policy_chatbot.py --demo    # scripted Q&A, no input (needs Bedrock access)
+```
+
+**`school_homework_submission.py` — policy + batch demo.** Defines the Cedar policy, schema, validation tool, and authorization handler, and runs 7 accept/deny scenarios. The chatbot reuses the policy and tool from this module.
+
+Policy file: `policies/school_homework_submission/school_homework_submission.cedar`
+Schema: `policies/school_homework_submission/schema.cedarschema`
+
+```bash
+uv run python school_homework_submission.py             # 7 demo scenarios (needs Bedrock access)
+uv run python tests/school_homework_submission_test.py  # 31 offline policy tests (no model calls)
+```
+
 ## Cedar Policy Syntax Quick Reference
 
 ```rust
@@ -271,7 +298,8 @@ Key differences from the local simulator:
 ```
 cedar-auth/
 ├── policies/
-│   └── database_access.cedar       # File-based Cedar policy
+│   ├── database_access.cedar       # File-based Cedar policy
+│   └── school_homework_submission/ # Homework policy + schema + reasoning template
 ├── dogwood/
 │   ├── policies/                    # Dogwood temporal policies (.dw)
 │   │   ├── local_engine_chat/       # Policy set of the Local Engine chat, one .dw per policy
@@ -291,6 +319,10 @@ cedar-auth/
 ├── environment_gating.py            # Block tools by environment
 ├── rate_limiting.py                 # Limit tool invocations
 ├── namespaced_policies.py           # Namespace-prefixed policies
+├── homework_policy_chatbot.py       # Student-facing homework policy chatbot
+├── school_homework_submission.py    # Homework policy + validation tool + batch demo
+├── tests/
+│   └── school_homework_submission_test.py  # 31 offline policy tests
 ├── pyproject.toml
 └── README.md
 ```

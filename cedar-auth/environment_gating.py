@@ -52,13 +52,13 @@ if __name__ == "__main__":
     run_scenario(
         title="Staging: deploy permitted",
         style="green",
-        prompt="Deploy the service version 2.1",
+        prompt="Deploy the service version 2.1 to staging",
         invocation_state={"environment": "staging"},
     )
 
     run_scenario(
         title="Production: deploy denied",
         style="red",
-        prompt="Deploy the service version 2.4",
+        prompt="Deploy the service version 2.4 to production",
         invocation_state={"environment": "production"},
     )
