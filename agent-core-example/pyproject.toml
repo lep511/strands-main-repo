@@ -1,0 +1,22 @@
+[project]
+name = "agent-core-example"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "lep511", email = "estebanpbuday@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.44.2",
+    "rich>=15.0.0",
+    "strands-agents>=1.0.0",
+    "bedrock-agentcore>=0.1.0",
+]
+
+[project.scripts]
+agent-core-example = "agent_core_example:main"
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14.0"]
+build-backend = "uv_build"
